@@ -1,12 +1,13 @@
 import pygame
 import sqlite3
 import sys
-from scenes import Menu, TestsList
+from scenes import Menu, TestsList, Test
 from functions import terminate
 
 # Для создания exe приложения использовать:
 # pyinstaller -F -w -i "E:\PyCharm Projects\HistoryTest\data\icon.ico" main.py
-# Не забудь! Файл data не добавляется в exe, а значит он должен находится в одной директории с приложением, иначе не запуститься!
+# Не забудь! Файл data не добавляется в exe, а значит он должен находится в одной директории с приложением!
+# Иначе не запустится!
 
 
 pygame.init()
@@ -29,7 +30,7 @@ while True:
         elif scenename == "tests":
             Scene = TestsList()
         elif scenename[:5] == "topic":
-            pass
+            Scene = Test(scenename[5:])
         else:
             print("Сцена '" + scenename + "' не найдена")
             terminate()
@@ -41,7 +42,9 @@ while True:
             terminate()
         if event.type == pygame.MOUSEBUTTONDOWN:
             scenename = Scene.click(event.pos)
+            if scenename == "x":
+                scenename = oldscenename
         if event.type == pygame.MOUSEMOTION:
-            Scene.mouseMotion(event.pos)
+            Scene.mouse_motion(event.pos)
         Scene.render(screen)
     pygame.display.flip()

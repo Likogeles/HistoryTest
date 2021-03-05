@@ -27,3 +27,37 @@ class SceneSwitchButton(pygame.sprite.Sprite):
             self.image = self.charge_image
             return
         self.image = self.not_charge_image
+
+
+class QuestionSwitchButton(pygame.sprite.Sprite):
+    def __init__(self, id, x, y, *group):
+        super().__init__(*group)
+        self.charge_image = load_image("Buttons/questionbut_charge.png")
+        self.not_charge_image = load_image("Buttons/questionbut.png")
+        self.now_image = load_image("Buttons/questionbut_now.png")
+        self.now_logic = False
+
+        self.image = self.not_charge_image
+        self.rect = self.image.get_rect()
+        self.w, self.h = self.image.get_rect()[2], self.image.get_rect()[3]
+        self.rect.x = x
+        self.rect.y = y
+        self.id = id
+
+    def click(self, pos):  # Возвращает свой id если pos находится в области кнопки, иначе возвращает False
+        if self.rect.x <= pos[0] <= self.rect.x + self.w and \
+                self.rect.y <= pos[1] <= self.rect.y + self.h:
+
+            self.now_logic = True
+
+            return self.id
+        return False
+
+    def charge_switch(self, pos):
+        if self.rect.x <= pos[0] <= self.rect.x + self.w and \
+                self.rect.y <= pos[1] <= self.rect.y + self.h:
+            self.image = self.charge_image
+        elif self.now_logic:
+            self.image = self.now_image
+        else:
+            self.image = self.not_charge_image
