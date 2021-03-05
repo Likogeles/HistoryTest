@@ -35,6 +35,7 @@ class QuestionSwitchButton(pygame.sprite.Sprite):
         self.charge_image = load_image("Buttons/questionbut_charge.png")
         self.not_charge_image = load_image("Buttons/questionbut.png")
         self.now_image = load_image("Buttons/questionbut_now.png")
+        self.choised_image = load_image("Buttons/questionbut_choised.png")
 
         self.image = self.not_charge_image
         self.rect = self.image.get_rect()
@@ -42,6 +43,8 @@ class QuestionSwitchButton(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
         self.id = id
+        self.choise_logic = False
+
         if id == 0:
             self.now_logic = True
             self.image = self.now_image
@@ -63,8 +66,14 @@ class QuestionSwitchButton(pygame.sprite.Sprite):
             self.image = self.charge_image
         elif self.now_logic:
             self.image = self.now_image
+        elif self.choise_logic:
+            self.image = self.choised_image
         else:
             self.image = self.not_charge_image
+
+    def choise_switch(self):
+        self.image = self.choised_image
+        self.choise_logic = True
 
 
 class AnswerSwitchButton(pygame.sprite.Sprite):

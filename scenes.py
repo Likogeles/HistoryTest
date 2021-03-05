@@ -150,6 +150,7 @@ class Test:
         for i in self.but_sprites:
             if i.click(pos):
                 return i.name
+
         for i in self.qtbut_sprites:
             if type(i.click(pos)) == int:
                 for j in self.qtbut_sprites:
@@ -162,11 +163,18 @@ class Test:
                         j.now_logic = True
                 self.mouse_motion(pos)
                 return "x"
+
         for i in self.anbut_sprites:
-            if type(i.click(pos)) == int:
+            temp = i.click(pos)
+            if type(temp) == int:
                 for j in self.anbut_sprites:
                     j.now_logic = False
                 self.nums_of_selected_answers[self.question_id] = i.click(pos)
+                for j in self.qtbut_sprites:
+                    if j.id == self.question_id:
+                        j.choise_switch()
+                        break
+
                 self.mouse_motion(pos)
                 return "x"
         return "x"
