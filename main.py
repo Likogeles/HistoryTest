@@ -4,11 +4,12 @@ import sys
 from scenes import Menu, TestsList, Test
 from functions import terminate
 
+# Ссылка на Github: https://github.com/Likogeles/HistoryTest
+
 # Для создания exe приложения использовать:
 # pyinstaller -F -w -i "E:\PyCharm Projects\HistoryTest\data\icon.ico" main.py
 # Не забудь! Файл data не добавляется в exe, а значит он должен находится в одной директории с приложением!
 # Иначе не запустится!
-
 
 pygame.init()
 
