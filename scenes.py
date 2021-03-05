@@ -81,9 +81,6 @@ class Test:
 
             QtSwButton(i, 20 + 40 * x, 20 + 50 * (y - 1), self.qtbut_sprites)
             x += 1
-        for i in self.qtbut_sprites:
-            i.now_logic = True
-            break
         self.y = y
 
     def render(self, screen):
