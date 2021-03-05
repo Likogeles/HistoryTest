@@ -48,7 +48,6 @@ class QuestionSwitchButton(pygame.sprite.Sprite):
         else:
             self.now_logic = False
 
-
     def click(self, pos):  # Возвращает свой id если pos находится в области кнопки, иначе возвращает False
         if self.rect.x <= pos[0] <= self.rect.x + self.w and \
                 self.rect.y <= pos[1] <= self.rect.y + self.h:
@@ -66,3 +65,34 @@ class QuestionSwitchButton(pygame.sprite.Sprite):
             self.image = self.now_image
         else:
             self.image = self.not_charge_image
+
+
+class AnswerSwitchButton(pygame.sprite.Sprite):
+    def __init__(self, id, x, y, *group):
+        super().__init__(*group)
+        self.not_charge_image = load_image("Buttons/answerbut.png")
+        self.now_image = load_image("Buttons/answerbut_now.png")
+
+        self.image = self.not_charge_image
+        self.rect = self.image.get_rect()
+        self.w, self.h = self.image.get_rect()[2], self.image.get_rect()[3]
+        self.rect.x = x
+        self.rect.y = y
+        self.id = id
+        if id == 0:
+            self.now_logic = True
+            self.image = self.now_image
+        else:
+            self.now_logic = False
+
+    def click(self, pos):  # Возвращает свой id если pos находится в области кнопки, иначе возвращает False
+        if self.rect.x <= pos[0] <= self.rect.x + self.w and \
+                self.rect.y <= pos[1] <= self.rect.y + self.h:
+
+            self.now_logic = True
+
+            return self.id
+        return False
+
+    def charge_switch(self, pos):
+        pass

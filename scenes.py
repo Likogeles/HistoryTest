@@ -2,6 +2,7 @@ import pygame
 
 from classes import SceneSwitchButton as ScSwButton
 from classes import QuestionSwitchButton as QtSwButton
+from classes import AnswerSwitchButton as AnSwButton
 
 
 class Menu:
@@ -64,14 +65,24 @@ class Test:
         self.but_sprites = pygame.sprite.Group()
         self.question_id = 0
 
+        ScSwButton("tests", "testsbut", 20, 20, self.but_sprites)
+
         filename = "data/Questions/Topic" + test_id + ".txt"
 
         self.font = pygame.font.SysFont('verdana', 30)
         with open(filename, 'r', encoding='utf-8') as TestsTopicsFile:
             self.questions = [line.strip() for line in TestsTopicsFile]
 
+        self.answers = []
+        self.nums_of_right_answers = []
+        self.nums_of_selected_answers = [0 for i in range(len(self.questions))]
+        for i in range(len(self.questions)):
+            self.answers.append(self.questions[i].split("&")[1:5])
+            self.nums_of_right_answers.append(self.questions[i].split("&")[-1])
+            self.questions[i] = str(i + 1) + ") " + self.questions[i].split("&")[0]
+
         x = 0
-        y = 0
+        y = 1
         for i in range(len(self.questions)):
             if i % 5 == 0:
                 x += 1
@@ -88,6 +99,7 @@ class Test:
         self.qtbut_sprites.draw(screen)
         self.but_sprites.draw(screen)
         if self.questions:
+            # Прорисовка вопроса
             x = self.questions[self.question_id].split()
             y = self.y
             leng = 0
@@ -97,11 +109,33 @@ class Test:
                     y += 1
                     pixleng = 0
                     leng = 0
-                screen.blit(self.font.render(i + " ", 1, (30, 30, 30)), (50 + pixleng, 50 + y * 40))
+                screen.blit(self.font.render(i + " ", 1, (30, 30, 30)), (50 + pixleng, 60 + y * 40))
                 leng += len(i)
                 pixleng += self.font.size(i + " ")[0]
 
+            # Прорисовка вариантов ответа
+
+            y += 1
+            for i in range(4):
+                y += 1
+                x = self.answers[self.question_id][i]
+                leng = 0
+                pixleng = 0
+                for i in x.split():
+                    if leng + len(i) > 50:
+                        y += 1
+                        pixleng = 0
+                        leng = 0
+                    screen.blit(self.font.render(i + " ", 1, (30, 30, 30)), (100 + pixleng, 60 + y * 40))
+                    leng += len(i)
+                    pixleng += self.font.size(i + " ")[0]
+
+            # Прорисовка кнопок выбора ответа
+
     def click(self, pos):
+        for i in self.but_sprites:
+            if i.click(pos):
+                return i.name
         for i in self.qtbut_sprites:
             if type(i.click(pos)) == int:
                 for j in self.qtbut_sprites:
@@ -109,8 +143,11 @@ class Test:
                 self.question_id = i.click(pos)
                 self.mouse_motion(pos)
                 return "x"
+
         return "x"
 
     def mouse_motion(self, pos):
         for i in self.qtbut_sprites:
+            i.charge_switch(pos)
+        for i in self.but_sprites:
             i.charge_switch(pos)
