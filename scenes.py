@@ -62,10 +62,12 @@ class TestsList:
 class Test:
     def __init__(self, test_id):
         self.qtbut_sprites = pygame.sprite.Group()
+        self.anbut_sprites = pygame.sprite.Group()
         self.but_sprites = pygame.sprite.Group()
         self.question_id = 0
+        self.y1 = 23
 
-        ScSwButton("tests", "testsbut", 20, 20, self.but_sprites)
+        ScSwButton("tests", "backbut", 20, 20, self.but_sprites)
 
         filename = "data/Questions/Topic" + test_id + ".txt"
 
@@ -90,47 +92,59 @@ class Test:
                 y += 1
                 x = 0
 
-            QtSwButton(i, 20 + 40 * x, 20 + 50 * (y - 1), self.qtbut_sprites)
+            QtSwButton(i, 20 + 40 * x, self.y1 + 50 * (y - 1), self.qtbut_sprites)
             x += 1
+
         self.y = y
+
+        AnSwButton(1, 40, self.y1 + 50 * y, self.anbut_sprites)
+        AnSwButton(2, 40, self.y1 + 50 * (y + 1), self.anbut_sprites)
+        AnSwButton(3, 40, self.y1 + 50 * (y + 2), self.anbut_sprites)
+        AnSwButton(4, 40, self.y1 + 50 * (y + 3), self.anbut_sprites)
 
     def render(self, screen):
         screen.fill((220, 220, 220))
         self.qtbut_sprites.draw(screen)
         self.but_sprites.draw(screen)
-        if self.questions:
-            # Прорисовка вопроса
-            x = self.questions[self.question_id].split()
-            y = self.y
+        if not self.questions:
+            return
+
+        # Прорисовка вопроса
+        x = self.questions[self.question_id].split()
+        y = self.y
+        leng = 0
+        pixleng = 0
+        for i in x:
+            if leng + len(i) > 50:
+                y += 1
+                pixleng = 0
+                leng = 0
+            screen.blit(self.font.render(i + " ", 1, (30, 30, 30)), (50 + pixleng, self.y1 + 40 + y * 40))
+            leng += len(i)
+            pixleng += self.font.size(i + " ")[0]
+
+        # Прорисовка вариантов ответа, кнопок выбора ответа и редактирование координат кнопок выбора ответа
+
+        y += 1
+        k = 0
+        for i in self.anbut_sprites:
+            y += 1
+            x = self.answers[self.question_id][k]
             leng = 0
             pixleng = 0
-            for i in x:
-                if leng + len(i) > 50:
+            i.rect.y = self.y1 + 25 + y * 40
+            for j in x.split():
+                if leng + len(j) > 50:
                     y += 1
                     pixleng = 0
                     leng = 0
-                screen.blit(self.font.render(i + " ", 1, (30, 30, 30)), (50 + pixleng, 60 + y * 40))
-                leng += len(i)
-                pixleng += self.font.size(i + " ")[0]
+                screen.blit(self.font.render(j + " ", 1, (30, 30, 30)), (90 + pixleng, self.y1 + 20 + y * 40))
 
-            # Прорисовка вариантов ответа
+                leng += len(j)
+                pixleng += self.font.size(j + " ")[0]
+            k += 1
 
-            y += 1
-            for i in range(4):
-                y += 1
-                x = self.answers[self.question_id][i]
-                leng = 0
-                pixleng = 0
-                for i in x.split():
-                    if leng + len(i) > 50:
-                        y += 1
-                        pixleng = 0
-                        leng = 0
-                    screen.blit(self.font.render(i + " ", 1, (30, 30, 30)), (100 + pixleng, 60 + y * 40))
-                    leng += len(i)
-                    pixleng += self.font.size(i + " ")[0]
-
-            # Прорисовка кнопок выбора ответа
+        self.anbut_sprites.draw(screen)
 
     def click(self, pos):
         for i in self.but_sprites:
@@ -141,13 +155,26 @@ class Test:
                 for j in self.qtbut_sprites:
                     j.now_logic = False
                 self.question_id = i.click(pos)
+                for j in self.anbut_sprites:
+                    if j.id != self.nums_of_selected_answers[self.question_id]:
+                        j.now_logic = False
+                    else:
+                        j.now_logic = True
                 self.mouse_motion(pos)
                 return "x"
-
+        for i in self.anbut_sprites:
+            if type(i.click(pos)) == int:
+                for j in self.anbut_sprites:
+                    j.now_logic = False
+                self.nums_of_selected_answers[self.question_id] = i.click(pos)
+                self.mouse_motion(pos)
+                return "x"
         return "x"
 
     def mouse_motion(self, pos):
         for i in self.qtbut_sprites:
+            i.charge_switch(pos)
+        for i in self.anbut_sprites:
             i.charge_switch(pos)
         for i in self.but_sprites:
             i.charge_switch(pos)
