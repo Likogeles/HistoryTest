@@ -222,13 +222,26 @@ class Test:
 
         for i in range(len(self.questions)):
             k = QtButton(i, 30, self.questions_list_y, 300, self.questions[i], self.qtbut_sprites, self.all_but_sprites)
-            self.questions_list_y += k.higth() + 5
+            self.questions_list_y += k.height() + 5
+
+        self.k_of_slide = int(((self.questions_list_y - 75) / 645) * 1.15)
+        print(self.k_of_slide)
 
     def render(self, screen):
         screen.fill((220, 220, 220))
-        self.all_but_sprites.draw(screen)
-        pygame.draw.rect(screen, (220, 220, 220), (20, 714, 330, 5), 5)
+        self.qtbut_sprites.draw(screen)
+
         pygame.draw.rect(screen, (100, 100, 100), (20, 65, 330, 645), 5)
+
+        dummy_surface0 = pygame.Surface((350, 64))
+        dummy_surface1 = pygame.Surface((350, 10))
+        dummy_surface0.fill((220, 220, 220))
+        dummy_surface1.fill((220, 220, 220))
+        screen.blit(dummy_surface0, (0, 0, 350, 62))
+        screen.blit(dummy_surface1, (20, 712, 330, 5))
+
+        self.but_sprites.draw(screen)
+        self.slider_sprite.draw(screen)
 
     def click(self, pos):
         for i in self.all_but_sprites:
@@ -241,18 +254,20 @@ class Test:
                 return x
         return "x"
 
-    def anti_click(self, pos):
+    def anti_click(self):
         self.slider_logic = False
 
     def mouse_motion(self, pos):
-        for i in self.all_but_sprites:
-            i.charge_switch(pos)
-
         if self.slider_logic:
             self.slide(pos, -(pos[1] - self.slider_mouse_pos_y) * 0.125, True)
+        for i in self.all_but_sprites:
+            i.charge_switch(pos)
         self.slider_mouse_pos_y = pos[1]
 
     def slide(self, pos, y, mouse_logic):
         x = self.slider.slide(pos, y, mouse_logic)
         if x:
-            self.questions_list_y += x
+            for i in self.qtbut_sprites:
+                i.rect.y -= x * self.k_of_slide
+        for i in self.all_but_sprites:
+            i.charge_switch(pos)

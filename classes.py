@@ -109,7 +109,7 @@ class QuestionButton(pygame.sprite.Sprite):
         self.rect.y = y
         self.id = id
 
-    def higth(self):
+    def height(self):
         return self.h
 
     def click(self, pos):  # Возвращает свой id если pos находится в области кнопки, иначе возвращает False
@@ -157,14 +157,20 @@ class Slider(pygame.sprite.Sprite):
     def slide(self, pos, y, mouse_logic):
         if (self.field[0] <= pos[0] <= self.field[0] + self.field[2] and
                 self.field[1] <= pos[1] <= self.field[1] + self.field[3]) or mouse_logic:
-            if self.field[1] + 5 >= self.rect.y + y * -8:
+            if (self.field[1] + 10 == self.rect.y and y > 0) or\
+                    (self.field[1] + self.field[3] - 85 == self.rect.y and y < 0):
+                return 0
+            k = self.rect.y
+            if self.field[1] + 10 >= self.rect.y + y * -8:
                 self.rect.y = self.field[1] + 10
             elif self.rect.y + y * -8 + self.rect.h >= self.field[1] + self.field[3] - 5:
                 self.rect.y = self.field[1] + self.field[3] - 85
             else:
                 self.rect.y += y * -8
-                return y * -8
-        self.charge_switch(pos)
+            k = abs(k - self.rect.y)
+            if y > 0:
+                k *= -1
+            return k
 
     def click(self, pos):
         if self.rect.x <= pos[0] <= self.rect.x + self.w and \

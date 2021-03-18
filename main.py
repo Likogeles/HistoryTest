@@ -51,7 +51,7 @@ while True:
 
         elif event.type == pygame.MOUSEBUTTONUP:
             if event.button == 1 and scenename[:5] == "topic":
-                Scene.anti_click(event.pos)
+                Scene.anti_click()
 
         elif event.type == pygame.MOUSEMOTION:
             Scene.mouse_motion(event.pos)
