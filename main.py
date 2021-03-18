@@ -23,7 +23,10 @@ Scene = Menu()
 
 TIMEEVENT = 30
 pygame.time.set_timer(TIMEEVENT, 10)
+mouse_pos = (0, 0)
 while True:
+    if scenename == "x":
+        scenename = oldscenename
     if scenename != oldscenename:
         print("Смена сцены на", scenename)
         if scenename == "menu":
@@ -41,11 +44,22 @@ while True:
         if event.type == pygame.QUIT:
             print("Программа завершена по инициативе пользователя")
             terminate()
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            scenename = Scene.click(event.pos)
-            if scenename == "x":
-                scenename = oldscenename
-        if event.type == pygame.MOUSEMOTION:
+
+        elif event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                scenename = Scene.click(event.pos)
+
+        elif event.type == pygame.MOUSEBUTTONUP:
+            if event.button == 1 and scenename[:5] == "topic":
+                Scene.anti_click(event.pos)
+
+        elif event.type == pygame.MOUSEMOTION:
             Scene.mouse_motion(event.pos)
+            mouse_pos = event.pos
+
+        elif event.type == pygame.MOUSEWHEEL:
+            if scenename[:5] == "topic":
+                Scene.slide(mouse_pos, event.y, False)
+
         Scene.render(screen)
     pygame.display.flip()
