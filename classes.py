@@ -1,19 +1,39 @@
 import pygame
+import os
 
 from functions import load_image
 
 
+class BackgroundImage(pygame.sprite.Sprite):
+    def __init__(self, imagename, x, y, *group, color_key=0):
+        super().__init__(*group)
+        self.image = load_image("Sprites/" + imagename + ".png", color_key)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+
 class SceneSwitchButton(pygame.sprite.Sprite):
-    def __init__(self, name, imagename, x, y, *group):
+    def __init__(self, name, imagename, x, y, *group, text='x'):
         super().__init__(*group)
         self.not_charge_image = load_image("Buttons/" + imagename + ".png")
         self.image = self.not_charge_image
         self.charge_image = load_image("Buttons/" + imagename + "_charge.png")
+
         self.rect = self.image.get_rect()
         self.w, self.h = self.image.get_rect()[2], self.image.get_rect()[3]
         self.rect.x = x
         self.rect.y = y
+
         self.name = name
+        self.charge_log = False
+
+        # Работа с текстом
+        self.font = pygame.font.Font(os.path.join('data', "Fonts/VollkornSC-Regular.ttf"), 30)
+        self.text = text
+        self.text_cords = (20, 20)
+        if self.text != 'x':
+            self.image.blit(self.font.render(self.text, True, (253, 253, 253)), self.text_cords)
 
     def click(self, pos):  # Возвращает True если pos находится в области кнопки, иначе возвращает False
         if self.rect.x <= pos[0] <= self.rect.x + self.w and \
@@ -25,8 +45,17 @@ class SceneSwitchButton(pygame.sprite.Sprite):
         if self.rect.x <= pos[0] <= self.rect.x + self.w and \
                 self.rect.y <= pos[1] <= self.rect.y + self.h:
             self.image = self.charge_image
-            return
-        self.image = self.not_charge_image
+            self.charge_log = True
+        else:
+            self.image = self.not_charge_image
+            self.charge_log = False
+
+        if self.text != 'x':
+            if self.charge_log:
+                for i in range(-2, 6):
+                    self.image.blit(self.font.render(self.text, True,
+                                                     (128, 128, 128)), (self.text_cords[0] + i, self.text_cords[1] + i))
+                self.image.blit(self.font.render(self.text, True, (253, 253, 253)), self.text_cords)
 
 
 class QuestionSwitchButton(pygame.sprite.Sprite):
@@ -80,11 +109,11 @@ class QuestionButton(pygame.sprite.Sprite):
     def __init__(self, id, x, y, w, text, *group):
         super().__init__(*group)
 
-        self.text_width = 300
+        # self.font = pygame.font.SysFont("verdana", 16)
 
-        self.font = pygame.font.SysFont("verdana", 16)
+        self.font = pygame.font.Font(os.path.join('data', "Fonts/VollkornSC-Regular.ttf"), 17)
 
-        width = w / self.font.size("0")[0]
+        width = w / (self.font.size("Wa")[0] / 2)
         self.strings = []
         leng = 0
         string = ""
@@ -107,6 +136,9 @@ class QuestionButton(pygame.sprite.Sprite):
         self.w, self.h = self.image.get_rect()[2], self.image.get_rect()[3]
         self.rect.x = x
         self.rect.y = y
+
+        pygame.draw.rect(self.image, (70, 54, 37), (0, 0, self.rect.w, self.rect.h), 3)
+
         self.id = id
 
     def height(self):
@@ -124,6 +156,7 @@ class QuestionButton(pygame.sprite.Sprite):
             self.image.fill(pygame.Color(240, 230, 140))
         else:
             self.image.fill(pygame.Color(180, 180, 180))
+        pygame.draw.rect(self.image, (70, 54, 37), (0, 0, self.rect.w, self.rect.h), 3)
 
         self.render_qt()
 

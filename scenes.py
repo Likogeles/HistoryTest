@@ -1,5 +1,5 @@
 import pygame
-
+from classes import BackgroundImage
 from classes import SceneSwitchButton as ScSwButton
 from classes import QuestionSwitchButton as QtSwButton
 from classes import QuestionButton as QtButton
@@ -10,10 +10,14 @@ from classes import Slider
 class Menu:
     def __init__(self):
         self.but_sprites = pygame.sprite.Group()
-        ScSwButton("tests", "testsbut", 336, 360, self.but_sprites)
+        self.background_sprites = pygame.sprite.Group()
+        BackgroundImage("background", 0, 0, self.background_sprites)
+        BackgroundImage("welcome_menu", 0, 0, self.background_sprites)
+        ScSwButton("tests", "testsbut", 423, 500, self.but_sprites)
 
-    def render(self, screen):
-        screen.fill((220, 220, 220))
+    def render(self, screen, background_color):
+        screen.fill(background_color)
+        self.background_sprites.draw(screen)
         self.but_sprites.draw(screen)
 
     def click(self, pos):
@@ -30,8 +34,11 @@ class Menu:
 class TestsList:
     def __init__(self):
         self.but_sprites = pygame.sprite.Group()
+        self.background_sprites = pygame.sprite.Group()
 
         filename = "data/TestTopics/TestsTopics.txt"
+        BackgroundImage("background", 0, 0, self.background_sprites)
+        BackgroundImage("topiclist", 271, 10, self.background_sprites)
 
         self.font = pygame.font.Font(None, 30)
 
@@ -39,16 +46,13 @@ class TestsList:
             self.TestsTopics = [line.strip() for line in TestsTopicsFile]
 
         for i in range(len(self.TestsTopics)):
-            ScSwButton("topic" + str(i), "topicbut", 80, 70 * i + 150, self.but_sprites)
-        ScSwButton("menu", "menubut", 80, 80, self.but_sprites)
+            ScSwButton("topic" + str(i), "topicbut", 20, 85 * i + 150, self.but_sprites, text=self.TestsTopics[i])
+        ScSwButton("menu", "backbut", 20, 10, self.but_sprites)
 
-    def render(self, screen):
-        screen.fill((220, 220, 220))
+    def render(self, screen, background_color):
+        screen.fill(background_color)
+        self.background_sprites.draw(screen)
         self.but_sprites.draw(screen)
-        if self.TestsTopics:
-            for i in range(len(self.TestsTopics)):
-                screen.blit(self.font.render(self.TestsTopics[i], 1,
-                                             (0, 0, 0)), (100, 70 * i + 170))
 
     def click(self, pos):
         for i in self.but_sprites:
@@ -197,21 +201,26 @@ class Test:
         self.but_sprites = pygame.sprite.Group()
         self.all_but_sprites = pygame.sprite.Group()
         self.slider_sprite = pygame.sprite.Group()
+        self.background_sprites = pygame.sprite.Group()
+        self.dummy_sprites = pygame.sprite.Group()
+
         self.question_id = 0
-        self.questions_list_y = 75
+        self.questions_list_y = 100
 
         ScSwButton("tests", "backbut", 20, 10, self.but_sprites, self.all_but_sprites)
+        BackgroundImage("background", 0, 0, self.background_sprites)
+        BackgroundImage("question", 410, 13, self.background_sprites)
+        BackgroundImage("slider", 20, 90, self.background_sprites)
+        BackgroundImage("dummy0", 0, 0, self.dummy_sprites)
+        BackgroundImage("dummy1", 0, 686, self.dummy_sprites)
 
-        self.slider = Slider(335, 75, (20, 65, 330, 642), self.slider_sprite, self.all_but_sprites)
-        self.slider_logic = False
-        self.slider_mouse_pos_y = 0
+        self.font = pygame.font.SysFont('verdana', 20)
+
+        # Работа с файлом
 
         filename = "data/Questions/Topic" + test_id + ".txt"
-
-        self.font = pygame.font.SysFont('verdana', 16)
         with open(filename, 'r', encoding='utf-8') as TestsTopicsFile:
             self.questions = [line.strip() for line in TestsTopicsFile]
-
         self.answers = []
         self.nums_of_right_answers = []
         self.nums_of_selected_answers = [0 for i in range(len(self.questions))]
@@ -220,28 +229,64 @@ class Test:
             self.nums_of_right_answers.append(self.questions[i].split("&")[-1])
             self.questions[i] = str(i + 1) + ") " + self.questions[i].split("&")[0]
 
+        # Создание кнопок списка вопросов
+
         for i in range(len(self.questions)):
-            k = QtButton(i, 30, self.questions_list_y, 300, self.questions[i], self.qtbut_sprites, self.all_but_sprites)
+            k = QtButton(i, 30, self.questions_list_y, 345, self.questions[i], self.qtbut_sprites, self.all_but_sprites)
             self.questions_list_y += k.height() + 5
 
-        self.k_of_slide = int(((self.questions_list_y - 75) / 645) * 1.15)
-        print(self.k_of_slide)
+        # Генерация строк каждого вопроса для корректного отображения на странице
 
-    def render(self, screen):
-        screen.fill((220, 220, 220))
+        self.strings = []
+        leng = 0
+        string = ""
+        width = 500 / self.font.size("0")[0]  # Кол-во символов, выделенных на ширину вопроса
+        for k in range(len(self.questions)):
+            print("\n" + self.questions[k] + ":")
+            g = 0
+            for i in self.questions[k].split():
+                if len(self.strings) == g:
+                    self.strings.append([])
+                if leng + len(i) > width:
+                    self.strings[g].append(string)
+                    string = ""
+                    leng = 0
+                string += i + " "
+                leng += len(i) + 1
+                g += 1
+            if string:
+                self.strings.append(string)
+
+            print(self.strings)
+
+        # Работа со слайдером
+
+        self.k_of_slide = int((self.questions_list_y - 100) / (596 - 70))
+        self.slider = 0
+        if self.questions_list_y > 700:
+            self.slider = Slider(380, 100, (20, 90, 375, 594), self.slider_sprite, self.all_but_sprites)
+            self.slider_logic = False
+            self.slider_mouse_pos_y = 0
+
+    def render(self, screen, background_color):
+        screen.fill(background_color)
+        self.background_sprites.draw(screen)
+
+        # Отрисовка списка вопросов
         self.qtbut_sprites.draw(screen)
+        pygame.draw.rect(screen, (70, 54, 37), (20, 91, 375, 594), 3)
 
-        pygame.draw.rect(screen, (100, 100, 100), (20, 65, 330, 645), 5)
+        # Отрисовка заглушек для списка вопросов
+        self.dummy_sprites.draw(screen)
 
-        dummy_surface0 = pygame.Surface((350, 64))
-        dummy_surface1 = pygame.Surface((350, 10))
-        dummy_surface0.fill((220, 220, 220))
-        dummy_surface1.fill((220, 220, 220))
-        screen.blit(dummy_surface0, (0, 0, 350, 62))
-        screen.blit(dummy_surface1, (20, 712, 330, 5))
-
+        # Отрисовка экрана и кнопок
         self.but_sprites.draw(screen)
         self.slider_sprite.draw(screen)
+
+        # Отрисовка вопроса
+
+        screen.blit(self.font.render(self.questions[self.question_id], True, (30, 30, 30)), (400, 100))
+
 
     def click(self, pos):
         for i in self.all_but_sprites:
@@ -265,9 +310,10 @@ class Test:
         self.slider_mouse_pos_y = pos[1]
 
     def slide(self, pos, y, mouse_logic):
-        x = self.slider.slide(pos, y, mouse_logic)
-        if x:
-            for i in self.qtbut_sprites:
-                i.rect.y -= x * self.k_of_slide
+        if self.slider:
+            x = self.slider.slide(pos, y, mouse_logic)
+            if x:
+                for i in self.qtbut_sprites:
+                    i.rect.y -= x * self.k_of_slide
         for i in self.all_but_sprites:
             i.charge_switch(pos)

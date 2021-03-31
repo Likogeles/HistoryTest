@@ -17,6 +17,7 @@ pygame.display.set_caption("Тесты по истории России")
 pygame.display.set_icon(pygame.image.load("data/Sprites/icon.png"))
 screen = pygame.display.set_mode((1280, 720))
 
+background_color = (237, 238, 243)
 scenename = "menu"
 oldscenename = scenename
 Scene = Menu()
@@ -61,5 +62,5 @@ while True:
             if scenename[:5] == "topic":
                 Scene.slide(mouse_pos, event.y, False)
 
-        Scene.render(screen)
+        Scene.render(screen, background_color)
     pygame.display.flip()
