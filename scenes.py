@@ -1,6 +1,6 @@
 import pygame
 from classes import BackgroundImage
-from classes import SceneSwitchButton as ScSwButton
+from classes import Button
 from classes import QuestionButton as QtButton
 from classes import Slider
 
@@ -11,7 +11,7 @@ class Menu:
         self.background_sprites = pygame.sprite.Group()
         BackgroundImage("background", 0, 0, self.background_sprites)
         BackgroundImage("welcome_menu", 0, 0, self.background_sprites)
-        ScSwButton("tests", "testsbut", 423, 500, self.but_sprites)
+        Button("tests", "testsbut", 423, 500, self.but_sprites)
 
     def render(self, screen, background_color):
         screen.fill(background_color)
@@ -44,8 +44,8 @@ class TestsList:
             self.TestsTopics = [line.strip() for line in TestsTopicsFile]
 
         for i in range(len(self.TestsTopics)):
-            ScSwButton("topic" + str(i), "topicbut", 20, 85 * i + 150, self.but_sprites, text=self.TestsTopics[i])
-        ScSwButton("menu", "backbut", 20, 10, self.but_sprites)
+            Button("topic" + str(i), "topicbut", 20, 85 * i + 150, self.but_sprites, text=self.TestsTopics[i])
+        Button("menu", "backbut", 20, 10, self.but_sprites)
 
     def render(self, screen, background_color):
         screen.fill(background_color)
@@ -66,17 +66,22 @@ class TestsList:
 class Test:
     def __init__(self, test_id):
         self.qtbut_sprites = pygame.sprite.Group()
-        self.anbut_sprites = pygame.sprite.Group()
         self.but_sprites = pygame.sprite.Group()
         self.all_but_sprites = pygame.sprite.Group()
+        self.prev_but_sprite = pygame.sprite.Group()
+        self.next_but_sprite = pygame.sprite.Group()
+
         self.slider_sprite = pygame.sprite.Group()
         self.background_sprites = pygame.sprite.Group()
         self.dummy_sprites = pygame.sprite.Group()
-
         self.question_id = 0
         self.questions_list_y = 100
 
-        ScSwButton("tests", "backbut", 20, 10, self.but_sprites, self.all_but_sprites)
+        Button("tests", "backbut", 20, 10, self.but_sprites, self.all_but_sprites)
+        self.prev_but = Button("prev", "prevquestion", 410, 629, self.prev_but_sprite, self.all_but_sprites)
+        Button("tests", "finish", 690, 629, self.but_sprites, self.all_but_sprites)
+        self.next_but = Button("next", "nextquestion", 970, 629, self.next_but_sprite, self.all_but_sprites)
+
         BackgroundImage("background", 0, 0, self.background_sprites)
         BackgroundImage("question", 410, 13, self.background_sprites)
         BackgroundImage("slider", 20, 90, self.background_sprites)
@@ -123,10 +128,13 @@ class Test:
 
         # Создание кнопок списка вопросов
 
+        self.questions_buts = []
         for i in range(len(self.questions)):
             k = QtButton(i, 30, self.questions_list_y, 345, self.questions[i], self.qtbut_sprites, self.all_but_sprites)
+            self.questions_buts.append(k)
             self.questions_list_y += k.height() + 5
-
+        self.questions_buts[0].now = True
+        self.questions_buts[0].charge_switch((0, 0))
         # Работа со слайдером
 
         # self.k_of_slide = int((self.questions_list_y - 100) / (596 - 70))
@@ -171,6 +179,11 @@ class Test:
         self.dummy_sprites.draw(screen)
 
         # Отрисовка экрана и кнопок
+        if self.question_id > 0:
+            self.prev_but_sprite.draw(screen)
+        if self.question_id < len(self.questions) - 1:
+            self.next_but_sprite.draw(screen)
+
         self.but_sprites.draw(screen)
         self.slider_sprite.draw(screen)
 
@@ -182,12 +195,31 @@ class Test:
             strings_y += self.font.size(i)[1]
 
     def click(self, pos):
+
         for i in self.all_but_sprites:
             x = i.click(pos)
             if type(x) == int:
+                self.questions_buts[self.question_id].now = False
+                self.questions_buts[self.question_id].charge_switch(pos)
                 self.question_id = x
+                self.questions_buts[self.question_id].now = True
+                self.questions_buts[self.question_id].charge_switch(pos)
             elif x == "slide":
                 self.slider_logic = True
+            elif x == "prev":
+                if self.question_id > 0:
+                    self.questions_buts[self.question_id].now = False
+                    self.questions_buts[self.question_id].charge_switch(pos)
+                    self.question_id -= 1
+                    self.questions_buts[self.question_id].now = True
+                    self.questions_buts[self.question_id].charge_switch(pos)
+            elif x == "next":
+                if self.question_id < len(self.questions) - 1:
+                    self.questions_buts[self.question_id].now = False
+                    self.questions_buts[self.question_id].charge_switch(pos)
+                    self.question_id += 1
+                    self.questions_buts[self.question_id].now = True
+                    self.questions_buts[self.question_id].charge_switch(pos)
             elif x:
                 return x
         return "x"

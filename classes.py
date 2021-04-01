@@ -13,7 +13,7 @@ class BackgroundImage(pygame.sprite.Sprite):
         self.rect.y = y
 
 
-class SceneSwitchButton(pygame.sprite.Sprite):
+class Button(pygame.sprite.Sprite):
     def __init__(self, name, imagename, x, y, *group, text='x'):
         super().__init__(*group)
         self.not_charge_image = load_image("Buttons/" + imagename + ".png")
@@ -62,6 +62,8 @@ class QuestionButton(pygame.sprite.Sprite):
     def __init__(self, id, x, y, w, text, *group):
         super().__init__(*group)
 
+        self.now = False
+
         # self.font = pygame.font.SysFont("verdana", 16)
 
         self.font = pygame.font.Font(os.path.join('data', "Fonts/VollkornSC-Regular.ttf"), 17)
@@ -104,11 +106,14 @@ class QuestionButton(pygame.sprite.Sprite):
         return False
 
     def charge_switch(self, pos):
-        if self.rect.x <= pos[0] <= self.rect.x + self.w and \
-                self.rect.y <= pos[1] <= self.rect.y + self.h:
-            self.image.fill(pygame.Color(240, 230, 140))
+        if self.now:
+            self.image.fill(pygame.Color(140, 130, 40))
         else:
-            self.image.fill(pygame.Color(180, 180, 180))
+            if self.rect.x <= pos[0] <= self.rect.x + self.w and \
+                    self.rect.y <= pos[1] <= self.rect.y + self.h:
+                self.image.fill(pygame.Color(240, 230, 140))
+            else:
+                self.image.fill(pygame.Color(180, 180, 180))
         pygame.draw.rect(self.image, (70, 54, 37), (0, 0, self.rect.w, self.rect.h), 3)
 
         self.render_qt()
