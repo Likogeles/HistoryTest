@@ -14,11 +14,17 @@ class BackgroundImage(pygame.sprite.Sprite):
 
 
 class Button(pygame.sprite.Sprite):
-    def __init__(self, name, imagename, x, y, *group, text='x'):
+    def __init__(self, name, imagename, x, y, *group, text='x', answer_id=0):
         super().__init__(*group)
+        self.answer_id = answer_id
         self.not_charge_image = load_image("Buttons/" + imagename + ".png")
         self.image = self.not_charge_image
         self.charge_image = load_image("Buttons/" + imagename + "_charge.png")
+        self.now_image = False
+        self.now = False
+
+        if answer_id:
+            self.now_image = load_image("Buttons/" + imagename + "_now.png")
 
         self.rect = self.image.get_rect()
         self.w, self.h = self.image.get_rect()[2], self.image.get_rect()[3]
@@ -42,13 +48,17 @@ class Button(pygame.sprite.Sprite):
         return False
 
     def charge_switch(self, pos):
-        if self.rect.x <= pos[0] <= self.rect.x + self.w and \
-                self.rect.y <= pos[1] <= self.rect.y + self.h:
-            self.image = self.charge_image
-            self.charge_log = True
+        if not self.now:
+            if self.rect.x <= pos[0] <= self.rect.x + self.w and \
+                    self.rect.y <= pos[1] <= self.rect.y + self.h:
+                self.image = self.charge_image
+                self.charge_log = True
+            else:
+                self.image = self.not_charge_image
+                self.charge_log = False
         else:
-            self.image = self.not_charge_image
-            self.charge_log = False
+            self.image = self.now_image
+            self.charge_log = True
 
         if self.text != 'x':
             if self.charge_log:
@@ -63,6 +73,7 @@ class QuestionButton(pygame.sprite.Sprite):
         super().__init__(*group)
 
         self.now = False
+        self.complete = False
 
         # self.font = pygame.font.SysFont("verdana", 16)
 
@@ -114,6 +125,10 @@ class QuestionButton(pygame.sprite.Sprite):
                 self.image.fill(pygame.Color(240, 230, 140))
             else:
                 self.image.fill(pygame.Color(180, 180, 180))
+
+        if self.complete:
+            pygame.draw.rect(self.image, (0, 0, 255), (0, 0, 5, self.rect.h), 8)
+
         pygame.draw.rect(self.image, (70, 54, 37), (0, 0, self.rect.w, self.rect.h), 3)
 
         self.render_qt()

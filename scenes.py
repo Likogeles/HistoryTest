@@ -1,4 +1,5 @@
 import pygame
+import os
 from classes import BackgroundImage
 from classes import Button
 from classes import QuestionButton as QtButton
@@ -70,6 +71,7 @@ class Test:
         self.all_but_sprites = pygame.sprite.Group()
         self.prev_but_sprite = pygame.sprite.Group()
         self.next_but_sprite = pygame.sprite.Group()
+        self.answer_but_sprites = pygame.sprite.Group()
 
         self.slider_sprite = pygame.sprite.Group()
         self.background_sprites = pygame.sprite.Group()
@@ -89,10 +91,11 @@ class Test:
         BackgroundImage("dummy1", 0, 686, self.dummy_sprites)
         BackgroundImage("timer", 117, 10, self.dummy_sprites)
 
-        self.font = pygame.font.SysFont('verdana', 20)
+        self.question_font = pygame.font.Font(os.path.join('data', "Fonts/VollkornSC-Regular.ttf"), 25)
+        self.answer_font = pygame.font.Font(os.path.join('data', "Fonts/VollkornSC-Regular.ttf"), 15)
 
         # Работа с файлом старая
-        #
+
         # filename = "data/Questions/Topic" + test_id + ".txt"
         # with open(filename, 'r', encoding='utf-8') as TestsTopicsFile:
         #     self.questions = [line.strip() for line in TestsTopicsFile]
@@ -115,12 +118,15 @@ class Test:
         self.nums_of_right_answers = []
         self.nums_of_selected_answers = [0 for i in range(len(file_lines))]
         k = 0
+        tmp_answers = []
         for i in range(len(file_lines)):
             if k == 0:
                 self.questions.append(str(len(self.questions) + 1) + ") " + file_lines[i])
             elif k == 1 or k == 2 or k == 3 or k == 4:
-                self.answers.append(file_lines[i])
+                tmp_answers.append(file_lines[i][3:])
             elif k == 5:
+                self.answers.append(tmp_answers)
+                tmp_answers = []
                 self.nums_of_right_answers.append(file_lines[i].split("&")[-1])
             k += 1
             if k > 5:
@@ -133,11 +139,19 @@ class Test:
             k = QtButton(i, 30, self.questions_list_y, 345, self.questions[i], self.qtbut_sprites, self.all_but_sprites)
             self.questions_buts.append(k)
             self.questions_list_y += k.height() + 5
+
+        # Создание кнопок ответов
+
+        self.answer_buts = [
+            Button("x", "answerbut", 430, 420, self.answer_but_sprites, self.all_but_sprites, answer_id=1),
+            Button("x", "answerbut", 830, 420, self.answer_but_sprites, self.all_but_sprites, answer_id=2),
+            Button("x", "answerbut", 430, 520, self.answer_but_sprites, self.all_but_sprites, answer_id=3),
+            Button("x", "answerbut", 830, 520, self.answer_but_sprites, self.all_but_sprites, answer_id=4)
+        ]
+
         self.questions_buts[0].now = True
         self.questions_buts[0].charge_switch((0, 0))
         # Работа со слайдером
-
-        # self.k_of_slide = int((self.questions_list_y - 100) / (596 - 70))
 
         self.k_of_slide = int((self.questions_list_y - 100) / (590 - 70))
 
@@ -151,7 +165,7 @@ class Test:
 
         self.strings = []
 
-        width = 1100 / (self.font.size("Wa")[0] / 2)  # Кол-во символов, выделенных на ширину вопроса
+        width = 1100 / (self.question_font.size("Wa")[0] / 2)  # Кол-во символов, выделенных на ширину вопроса
 
         for k in range(len(self.questions)):
             string = ""
@@ -184,6 +198,7 @@ class Test:
         if self.question_id < len(self.questions) - 1:
             self.next_but_sprite.draw(screen)
 
+        self.answer_but_sprites.draw(screen)
         self.but_sprites.draw(screen)
         self.slider_sprite.draw(screen)
 
@@ -191,35 +206,62 @@ class Test:
 
         strings_y = 30
         for i in self.strings[self.question_id]:
-            screen.blit(self.font.render(i, True, (0, 0, 0)), (430, strings_y))
-            strings_y += self.font.size(i)[1]
+            screen.blit(self.question_font.render(i, True, (0, 0, 0)), (430, strings_y))
+            strings_y += self.question_font.size(i)[1]
+
+        # Отрисовка ответов:
+        for i in range(4):
+            if self.answer_buts[i].charge_log:
+                for j in range(-2, 6):
+                    screen.blit(self.question_font.render(
+                        self.answers[self.question_id][i], True, (128, 128, 128)),
+                        (440 + 400 * (i % 2) + j, 425 + (100 if i == 2 or i == 3 else 0) + j))
+
+            screen.blit(self.question_font.render(
+                self.answers[self.question_id][i], True, (253, 253, 253)),
+                (440 + 400 * (i % 2), 425 + (100 if i == 2 or i == 3 else 0)))
+
+    def change_question(self, x):
+        self.questions_buts[self.question_id].now = False
+        self.questions_buts[self.question_id].charge_switch((0, 0))
+        self.question_id = x
+        self.questions_buts[self.question_id].now = True
+        self.questions_buts[self.question_id].charge_switch((0, 0))
+
+        for i in self.answer_buts:
+            if self.nums_of_selected_answers[self.question_id] == i.answer_id:
+                i.now = True
+            else:
+                i.now = False
+            i.charge_switch((0, 0))
 
     def click(self, pos):
+        for i in self.answer_but_sprites:
+            x = i.click(pos)
+            if x:
+                if self.nums_of_selected_answers:
+                    self.answer_buts[self.nums_of_selected_answers[self.question_id] - 1].now = False
+                self.nums_of_selected_answers[self.question_id] = i.answer_id
+                i.now = True
+
+                self.questions_buts[self.question_id].complete = True
+                self.questions_buts[self.question_id].charge_switch((0, 0))
+
+                i.charge_switch((0, 0))
+
 
         for i in self.all_but_sprites:
             x = i.click(pos)
             if type(x) == int:
-                self.questions_buts[self.question_id].now = False
-                self.questions_buts[self.question_id].charge_switch(pos)
-                self.question_id = x
-                self.questions_buts[self.question_id].now = True
-                self.questions_buts[self.question_id].charge_switch(pos)
-            elif x == "slide":
-                self.slider_logic = True
+                self.change_question(x)
             elif x == "prev":
                 if self.question_id > 0:
-                    self.questions_buts[self.question_id].now = False
-                    self.questions_buts[self.question_id].charge_switch(pos)
-                    self.question_id -= 1
-                    self.questions_buts[self.question_id].now = True
-                    self.questions_buts[self.question_id].charge_switch(pos)
+                    self.change_question(self.question_id - 1)
             elif x == "next":
                 if self.question_id < len(self.questions) - 1:
-                    self.questions_buts[self.question_id].now = False
-                    self.questions_buts[self.question_id].charge_switch(pos)
-                    self.question_id += 1
-                    self.questions_buts[self.question_id].now = True
-                    self.questions_buts[self.question_id].charge_switch(pos)
+                    self.change_question(self.question_id + 1)
+            elif x == "slide":
+                self.slider_logic = True
             elif x:
                 return x
         return "x"
