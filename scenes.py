@@ -1,9 +1,7 @@
 import pygame
 from classes import BackgroundImage
 from classes import SceneSwitchButton as ScSwButton
-from classes import QuestionSwitchButton as QtSwButton
 from classes import QuestionButton as QtButton
-from classes import AnswerSwitchButton as AnSwButton
 from classes import Slider
 
 
@@ -65,135 +63,6 @@ class TestsList:
             i.charge_switch(pos)
 
 
-class Test1:
-    def __init__(self, test_id):
-        self.qtbut_sprites = pygame.sprite.Group()
-        self.anbut_sprites = pygame.sprite.Group()
-        self.but_sprites = pygame.sprite.Group()
-        self.question_id = 0
-        self.y1 = 23
-
-        ScSwButton("tests", "backbut", 20, 20, self.but_sprites)
-
-        filename = "data/Questions/Topic" + test_id + ".txt"
-
-        self.font = pygame.font.SysFont('verdana', 30)
-        with open(filename, 'r', encoding='utf-8') as TestsTopicsFile:
-            self.questions = [line.strip() for line in TestsTopicsFile]
-
-        self.answers = []
-        self.nums_of_right_answers = []
-        self.nums_of_selected_answers = [0 for i in range(len(self.questions))]
-        for i in range(len(self.questions)):
-            self.answers.append(self.questions[i].split("&")[1:5])
-            self.nums_of_right_answers.append(self.questions[i].split("&")[-1])
-            self.questions[i] = str(i + 1) + ") " + self.questions[i].split("&")[0]
-
-        x = 0
-        y = 1
-        for i in range(len(self.questions)):
-            if i % 5 == 0:
-                x += 1
-            if i % 25 == 0:
-                y += 1
-                x = 0
-
-            QtSwButton(i, 20 + 40 * x, self.y1 + 50 * (y - 1), self.qtbut_sprites)
-            x += 1
-
-        self.y = y
-
-        AnSwButton(1, 40, self.y1 + 50 * y, self.anbut_sprites)
-        AnSwButton(2, 40, self.y1 + 50 * (y + 1), self.anbut_sprites)
-        AnSwButton(3, 40, self.y1 + 50 * (y + 2), self.anbut_sprites)
-        AnSwButton(4, 40, self.y1 + 50 * (y + 3), self.anbut_sprites)
-
-    def render(self, screen):
-        screen.fill((220, 220, 220))
-        self.qtbut_sprites.draw(screen)
-        self.but_sprites.draw(screen)
-        if not self.questions:
-            return
-
-        # Прорисовка вопроса
-        x = self.questions[self.question_id].split()
-        y = self.y
-        leng = 0
-        pixleng = 0
-        for i in x:
-            if leng + len(i) > 50:
-                y += 1
-                pixleng = 0
-                leng = 0
-            screen.blit(self.font.render(i + " ", 1, (30, 30, 30)), (50 + pixleng, self.y1 + 40 + y * 40))
-            leng += len(i)
-            pixleng += self.font.size(i + " ")[0]
-
-        # Прорисовка вариантов ответа, кнопок выбора ответа и редактирование координат кнопок выбора ответа
-
-        y += 1
-        k = 0
-        for i in self.anbut_sprites:
-            y += 1
-            x = self.answers[self.question_id][k]
-            leng = 0
-            pixleng = 0
-            i.rect.y = self.y1 + 25 + y * 40
-            for j in x.split():
-                if leng + len(j) > 50:
-                    y += 1
-                    pixleng = 0
-                    leng = 0
-                screen.blit(self.font.render(j + " ", 1, (30, 30, 30)), (90 + pixleng, self.y1 + 20 + y * 40))
-
-                leng += len(j)
-                pixleng += self.font.size(j + " ")[0]
-            k += 1
-
-        self.anbut_sprites.draw(screen)
-
-    def click(self, pos):
-        for i in self.but_sprites:
-            if i.click(pos):
-                return i.name
-
-        for i in self.qtbut_sprites:
-            if type(i.click(pos)) == int:
-                for j in self.qtbut_sprites:
-                    j.now_logic = False
-                self.question_id = i.click(pos)
-                for j in self.anbut_sprites:
-                    if j.id != self.nums_of_selected_answers[self.question_id]:
-                        j.now_logic = False
-                    else:
-                        j.now_logic = True
-                self.mouse_motion(pos)
-                return "x"
-
-        for i in self.anbut_sprites:
-            temp = i.click(pos)
-            if type(temp) == int:
-                for j in self.anbut_sprites:
-                    j.now_logic = False
-                self.nums_of_selected_answers[self.question_id] = i.click(pos)
-                for j in self.qtbut_sprites:
-                    if j.id == self.question_id:
-                        j.choise_switch()
-                        break
-
-                self.mouse_motion(pos)
-                return "x"
-        return "x"
-
-    def mouse_motion(self, pos):
-        for i in self.qtbut_sprites:
-            i.charge_switch(pos)
-        for i in self.anbut_sprites:
-            i.charge_switch(pos)
-        for i in self.but_sprites:
-            i.charge_switch(pos)
-
-
 class Test:
     def __init__(self, test_id):
         self.qtbut_sprites = pygame.sprite.Group()
@@ -213,21 +82,44 @@ class Test:
         BackgroundImage("slider", 20, 90, self.background_sprites)
         BackgroundImage("dummy0", 0, 0, self.dummy_sprites)
         BackgroundImage("dummy1", 0, 686, self.dummy_sprites)
+        BackgroundImage("timer", 117, 10, self.dummy_sprites)
 
         self.font = pygame.font.SysFont('verdana', 20)
 
-        # Работа с файлом
+        # Работа с файлом старая
+        #
+        # filename = "data/Questions/Topic" + test_id + ".txt"
+        # with open(filename, 'r', encoding='utf-8') as TestsTopicsFile:
+        #     self.questions = [line.strip() for line in TestsTopicsFile]
+        # self.answers = []
+        # self.nums_of_right_answers = []
+        # self.nums_of_selected_answers = [0 for i in range(len(self.questions))]
+        # for i in range(len(self.questions)):
+        #     self.answers.append(self.questions[i].split("&")[1:5])
+        #     self.nums_of_right_answers.append(self.questions[i].split("&")[-1])
+        #     self.questions[i] = str(i + 1) + ") " + self.questions[i].split("&")[0]
 
-        filename = "data/Questions/Topic" + test_id + ".txt"
+        # Работа с файлом новая
+
+        filename = "data/Questions/topic" + test_id + ".txt"
         with open(filename, 'r', encoding='utf-8') as TestsTopicsFile:
-            self.questions = [line.strip() for line in TestsTopicsFile]
+            file_lines = [line.strip() for line in TestsTopicsFile]
+
         self.answers = []
+        self.questions = []
         self.nums_of_right_answers = []
-        self.nums_of_selected_answers = [0 for i in range(len(self.questions))]
-        for i in range(len(self.questions)):
-            self.answers.append(self.questions[i].split("&")[1:5])
-            self.nums_of_right_answers.append(self.questions[i].split("&")[-1])
-            self.questions[i] = str(i + 1) + ") " + self.questions[i].split("&")[0]
+        self.nums_of_selected_answers = [0 for i in range(len(file_lines))]
+        k = 0
+        for i in range(len(file_lines)):
+            if k == 0:
+                self.questions.append(str(len(self.questions) + 1) + ") " + file_lines[i])
+            elif k == 1 or k == 2 or k == 3 or k == 4:
+                self.answers.append(file_lines[i])
+            elif k == 5:
+                self.nums_of_right_answers.append(file_lines[i].split("&")[-1])
+            k += 1
+            if k > 5:
+                k = 0
 
         # Создание кнопок списка вопросов
 
@@ -235,38 +127,37 @@ class Test:
             k = QtButton(i, 30, self.questions_list_y, 345, self.questions[i], self.qtbut_sprites, self.all_but_sprites)
             self.questions_list_y += k.height() + 5
 
-        # Генерация строк каждого вопроса для корректного отображения на странице
-
-        self.strings = []
-        leng = 0
-        string = ""
-        width = 500 / self.font.size("0")[0]  # Кол-во символов, выделенных на ширину вопроса
-        for k in range(len(self.questions)):
-            print("\n" + self.questions[k] + ":")
-            g = 0
-            for i in self.questions[k].split():
-                if len(self.strings) == g:
-                    self.strings.append([])
-                if leng + len(i) > width:
-                    self.strings[g].append(string)
-                    string = ""
-                    leng = 0
-                string += i + " "
-                leng += len(i) + 1
-                g += 1
-            if string:
-                self.strings.append(string)
-
-            print(self.strings)
-
         # Работа со слайдером
 
-        self.k_of_slide = int((self.questions_list_y - 100) / (596 - 70))
+        # self.k_of_slide = int((self.questions_list_y - 100) / (596 - 70))
+
+        self.k_of_slide = int((self.questions_list_y - 100) / (590 - 70))
+
         self.slider = 0
         if self.questions_list_y > 700:
             self.slider = Slider(380, 100, (20, 90, 375, 594), self.slider_sprite, self.all_but_sprites)
             self.slider_logic = False
             self.slider_mouse_pos_y = 0
+
+        # Генерация строк каждого вопроса для корректного отображения на странице
+
+        self.strings = []
+
+        width = 1100 / (self.font.size("Wa")[0] / 2)  # Кол-во символов, выделенных на ширину вопроса
+
+        for k in range(len(self.questions)):
+            string = ""
+            leng = 0
+            for i in self.questions[k].split():
+                if leng + len(i) > width:
+                    self.strings.append([])
+                    self.strings[k].append(string)
+                    string = ""
+                    leng = 0
+                string += i + " "
+                leng += len(i) + 1
+            self.strings.append([])
+            self.strings[k].append(string)
 
     def render(self, screen, background_color):
         screen.fill(background_color)
@@ -285,8 +176,10 @@ class Test:
 
         # Отрисовка вопроса
 
-        screen.blit(self.font.render(self.questions[self.question_id], True, (30, 30, 30)), (400, 100))
-
+        strings_y = 30
+        for i in self.strings[self.question_id]:
+            screen.blit(self.font.render(i, True, (0, 0, 0)), (430, strings_y))
+            strings_y += self.font.size(i)[1]
 
     def click(self, pos):
         for i in self.all_but_sprites:

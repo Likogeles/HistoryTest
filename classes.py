@@ -58,53 +58,6 @@ class SceneSwitchButton(pygame.sprite.Sprite):
                 self.image.blit(self.font.render(self.text, True, (253, 253, 253)), self.text_cords)
 
 
-class QuestionSwitchButton(pygame.sprite.Sprite):
-    def __init__(self, id, x, y, *group):
-        super().__init__(*group)
-        self.charge_image = load_image("Buttons/questionbut_charge.png")
-        self.not_charge_image = load_image("Buttons/questionbut.png")
-        self.now_image = load_image("Buttons/questionbut_now.png")
-        self.choised_image = load_image("Buttons/questionbut_choised.png")
-
-        self.image = self.not_charge_image
-        self.rect = self.image.get_rect()
-        self.w, self.h = self.image.get_rect()[2], self.image.get_rect()[3]
-        self.rect.x = x
-        self.rect.y = y
-        self.id = id
-        self.choise_logic = False
-
-        if id == 0:
-            self.now_logic = True
-            self.image = self.now_image
-        else:
-            self.now_logic = False
-
-    def click(self, pos):  # Возвращает свой id если pos находится в области кнопки, иначе возвращает False
-        if self.rect.x <= pos[0] <= self.rect.x + self.w and \
-                self.rect.y <= pos[1] <= self.rect.y + self.h:
-
-            self.now_logic = True
-
-            return self.id
-        return False
-
-    def charge_switch(self, pos):
-        if self.rect.x <= pos[0] <= self.rect.x + self.w and \
-                self.rect.y <= pos[1] <= self.rect.y + self.h:
-            self.image = self.charge_image
-        elif self.now_logic:
-            self.image = self.now_image
-        elif self.choise_logic:
-            self.image = self.choised_image
-        else:
-            self.image = self.not_charge_image
-
-    def choise_switch(self):
-        self.image = self.choised_image
-        self.choise_logic = True
-
-
 class QuestionButton(pygame.sprite.Sprite):
     def __init__(self, id, x, y, w, text, *group):
         super().__init__(*group)
@@ -180,12 +133,16 @@ class Slider(pygame.sprite.Sprite):
         self.rect.y = y
         self.id = id
 
+        pygame.draw.rect(self.image, (70, 54, 37), (0, 0, self.rect.w, self.rect.h), 3)
+
     def charge_switch(self, pos):
         if self.rect.x <= pos[0] <= self.rect.x + self.w and \
                 self.rect.y <= pos[1] <= self.rect.y + self.h:
-            self.image.fill(pygame.Color(184, 134, 11))
+            # self.image.fill(pygame.Color(184, 134, 11))
+            self.image.fill(pygame.Color(163, 73, 164))
         else:
             self.image.fill(pygame.Color(165, 42, 42))
+        pygame.draw.rect(self.image, (70, 54, 37), (0, 0, self.rect.w, self.rect.h), 3)
 
     def slide(self, pos, y, mouse_logic):
         if (self.field[0] <= pos[0] <= self.field[0] + self.field[2] and
@@ -210,41 +167,3 @@ class Slider(pygame.sprite.Sprite):
                 self.rect.y <= pos[1] <= self.rect.y + self.h:
             return "slide"
 
-
-class AnswerSwitchButton(pygame.sprite.Sprite):
-    def __init__(self, id, x, y, *group):
-        super().__init__(*group)
-        self.not_charge_image = load_image("Buttons/answerbut.png", colorkey=True)
-        self.charge_image = load_image("Buttons/answerbut_charge.png", colorkey=True)
-        self.now_image = load_image("Buttons/answerbut_now.png", colorkey=True)
-
-        self.image = self.not_charge_image
-        self.rect = self.image.get_rect()
-        self.w, self.h = self.image.get_rect()[2], self.image.get_rect()[3]
-        self.rect.x = x
-        self.rect.y = y
-        self.id = id
-
-        if id == 0:
-            self.now_logic = True
-            self.image = self.now_image
-        else:
-            self.now_logic = False
-
-    def click(self, pos):  # Возвращает свой id если pos находится в области кнопки, иначе возвращает False
-        if self.rect.x <= pos[0] <= self.rect.x + self.w and \
-                self.rect.y <= pos[1] <= self.rect.y + self.h:
-
-            self.now_logic = True
-
-            return self.id
-        return False
-
-    def charge_switch(self, pos):
-        if self.rect.x <= pos[0] <= self.rect.x + self.w and \
-                self.rect.y <= pos[1] <= self.rect.y + self.h:
-            self.image = self.charge_image
-        elif self.now_logic:
-            self.image = self.now_image
-        else:
-            self.image = self.not_charge_image
