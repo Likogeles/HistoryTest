@@ -84,6 +84,8 @@ class Test:
         Button("tests", "finish", 690, 629, self.but_sprites, self.all_but_sprites)
         self.next_but = Button("next", "nextquestion", 970, 629, self.next_but_sprite, self.all_but_sprites)
 
+        self.flagbut = Button("flag", "flag", 1180, 330, self.but_sprites)
+
         BackgroundImage("background", 0, 0, self.background_sprites)
         BackgroundImage("question", 410, 13, self.background_sprites)
         BackgroundImage("slider", 20, 90, self.background_sprites)
@@ -228,14 +230,22 @@ class Test:
         self.questions_buts[self.question_id].now = True
         self.questions_buts[self.question_id].charge_switch((0, 0))
 
+        self.flagbut.charge_lock = self.questions_buts[self.question_id].flag
+        self.flagbut.charge_switch((0, 0))
+
         for i in self.answer_buts:
-            if self.nums_of_selected_answers[self.question_id] == i.answer_id:
-                i.now = True
-            else:
-                i.now = False
+            i.now = self.nums_of_selected_answers[self.question_id] == i.answer_id
             i.charge_switch((0, 0))
 
     def click(self, pos):
+        if self.flagbut.click(pos):
+            self.questions_buts[self.question_id].flag = not self.questions_buts[self.question_id].flag
+            self.flagbut.charge_lock = not self.flagbut.charge_lock
+            self.flagbut.charge_switch((0, 0))
+            self.questions_buts[self.question_id].charge_switch((0, 0))
+            self.mouse_motion(pos)
+            return "x"
+
         for i in self.answer_but_sprites:
             x = i.click(pos)
             if x:
@@ -243,12 +253,11 @@ class Test:
                     self.answer_buts[self.nums_of_selected_answers[self.question_id] - 1].now = False
                 self.nums_of_selected_answers[self.question_id] = i.answer_id
                 i.now = True
-
                 self.questions_buts[self.question_id].complete = True
                 self.questions_buts[self.question_id].charge_switch((0, 0))
-
-                i.charge_switch((0, 0))
-
+            else:
+                i.now = False
+            i.charge_switch((0, 0))
 
         for i in self.all_but_sprites:
             x = i.click(pos)
@@ -264,6 +273,7 @@ class Test:
                 self.slider_logic = True
             elif x:
                 return x
+        self.mouse_motion(pos)
         return "x"
 
     def anti_click(self):

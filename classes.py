@@ -22,6 +22,7 @@ class Button(pygame.sprite.Sprite):
         self.charge_image = load_image("Buttons/" + imagename + "_charge.png")
         self.now_image = False
         self.now = False
+        self.charge_lock = False
 
         if answer_id:
             self.now_image = load_image("Buttons/" + imagename + "_now.png")
@@ -48,17 +49,20 @@ class Button(pygame.sprite.Sprite):
         return False
 
     def charge_switch(self, pos):
-        if not self.now:
-            if self.rect.x <= pos[0] <= self.rect.x + self.w and \
-                    self.rect.y <= pos[1] <= self.rect.y + self.h:
-                self.image = self.charge_image
-                self.charge_log = True
-            else:
-                self.image = self.not_charge_image
-                self.charge_log = False
+        if self.charge_lock:
+            self.image = self.charge_image
         else:
-            self.image = self.now_image
-            self.charge_log = True
+            if not self.now:
+                if self.rect.x <= pos[0] <= self.rect.x + self.w and \
+                        self.rect.y <= pos[1] <= self.rect.y + self.h:
+                    self.image = self.charge_image
+                    self.charge_log = True
+                else:
+                    self.image = self.not_charge_image
+                    self.charge_log = False
+            else:
+                self.image = self.now_image
+                self.charge_log = True
 
         if self.text != 'x':
             if self.charge_log:
@@ -74,6 +78,7 @@ class QuestionButton(pygame.sprite.Sprite):
 
         self.now = False
         self.complete = False
+        self.flag = False
 
         # self.font = pygame.font.SysFont("verdana", 16)
 
@@ -127,7 +132,11 @@ class QuestionButton(pygame.sprite.Sprite):
                 self.image.fill(pygame.Color(180, 180, 180))
 
         if self.complete:
-            pygame.draw.rect(self.image, (0, 0, 255), (0, 0, 5, self.rect.h), 8)
+            pygame.draw.rect(self.image, (0, 0, 255), (0, 0, 10, self.rect.h))
+        if self.flag:
+            pygame.draw.polygon(self.image, (200, 0, 0),
+                                ((self.rect.w - 40, 0), (self.rect.w, 0), (self.rect.w, 40)))
+            pygame.draw.line(self.image, (100, 0, 0), (self.rect.w - 41, -1), (self.rect.w + 1, 41), 8)
 
         pygame.draw.rect(self.image, (70, 54, 37), (0, 0, self.rect.w, self.rect.h), 3)
 
