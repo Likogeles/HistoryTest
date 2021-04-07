@@ -73,6 +73,8 @@ class Test:
         self.next_but_sprite = pygame.sprite.Group()
         self.answer_but_sprites = pygame.sprite.Group()
 
+        self.test_id = test_id
+
         self.slider_sprite = pygame.sprite.Group()
         self.background_sprites = pygame.sprite.Group()
         self.dummy_sprites = pygame.sprite.Group()
@@ -81,7 +83,7 @@ class Test:
 
         Button("tests", "backbut", 20, 10, self.but_sprites, self.all_but_sprites)
         self.prev_but = Button("prev", "prevquestion", 410, 629, self.prev_but_sprite, self.all_but_sprites)
-        Button("tests", "finish", 690, 629, self.but_sprites, self.all_but_sprites)
+        Button("results" + str(self.test_id), "finish", 690, 629, self.but_sprites, self.all_but_sprites)
         self.next_but = Button("next", "nextquestion", 970, 629, self.next_but_sprite, self.all_but_sprites)
 
         self.flagbut = Button("flag", "flag", 1180, 330, self.but_sprites)
@@ -118,7 +120,6 @@ class Test:
         self.answers = []
         self.questions = []
         self.nums_of_right_answers = []
-        self.nums_of_selected_answers = [0 for i in range(len(file_lines))]
         k = 0
         tmp_answers = []
         for i in range(len(file_lines)):
@@ -133,6 +134,7 @@ class Test:
             k += 1
             if k > 5:
                 k = 0
+        self.nums_of_selected_answers = [0 for i in range(len(self.answers))]
 
         # Создание кнопок списка вопросов
 
@@ -237,6 +239,20 @@ class Test:
             i.now = self.nums_of_selected_answers[self.question_id] == i.answer_id
             i.charge_switch((0, 0))
 
+    def finish(self):
+        filename = "data/Results/results.txt"
+        line = str(self.test_id) + ": "
+
+        n = len(self.nums_of_selected_answers)
+        for i in range(n):
+            line += str(self.nums_of_selected_answers[i]) + "*" + str(self.nums_of_right_answers[i])
+            if i < n - 1:
+                line += "_"
+        line += "\n"
+
+        with open(filename, 'a', encoding='utf-8') as ResultsFile:
+            ResultsFile.write(line)
+
     def click(self, pos):
         if self.flagbut.click(pos):
             self.questions_buts[self.question_id].flag = not self.questions_buts[self.question_id].flag
@@ -252,11 +268,11 @@ class Test:
                 if self.nums_of_selected_answers:
                     self.answer_buts[self.nums_of_selected_answers[self.question_id] - 1].now = False
                 self.nums_of_selected_answers[self.question_id] = i.answer_id
-                i.now = True
                 self.questions_buts[self.question_id].complete = True
                 self.questions_buts[self.question_id].charge_switch((0, 0))
-            else:
-                i.now = False
+                for j in self.answer_but_sprites:
+                    j.now = False
+                i.now = True
             i.charge_switch((0, 0))
 
         for i in self.all_but_sprites:
@@ -271,6 +287,8 @@ class Test:
                     self.change_question(self.question_id + 1)
             elif x == "slide":
                 self.slider_logic = True
+            elif x == "tests":
+                self.finish()
             elif x:
                 return x
         self.mouse_motion(pos)
