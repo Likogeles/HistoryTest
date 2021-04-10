@@ -39,20 +39,52 @@ class TestsList:
         BackgroundImage("background", 0, 0, self.background_sprites)
         BackgroundImage("topiclist", 271, 10, self.background_sprites)
 
-        self.font = pygame.font.Font(None, 30)
+        self.font = pygame.font.Font(os.path.join('data', "Fonts/VollkornSC-Regular.ttf"), 35)
 
         with open(filename, 'r', encoding='utf-8') as TestsTopicsFile:
             self.TestsTopics = [line.strip() for line in TestsTopicsFile]
 
+        filename = "data/Results/results.txt"
+        with open(filename, 'r', encoding='utf-8') as ResultFile:
+            file_lines = [line.strip() for line in ResultFile]
+        info = {}
+        for i in file_lines:
+            k = i.split()
+            info[k[0][:-1]] = i.split()[1:]
+
+        self.nums_strings = []
         for i in range(len(self.TestsTopics)):
             Button("topic" + str(i), "topicbut", 20, 85 * i + 150, self.but_sprites, text=self.TestsTopics[i])
-            Button("result" + str(i), "myanswers", 887, 85 * i + 150, self.but_sprites)
+            if str(i) in info:
+                self.nums_strings.append([i, info[str(i)][0], info[str(i)][1] + "%"])
+                BackgroundImage("nums", 620,  85 * i + 150, self.background_sprites)
+                Button("result" + str(i), "myanswers", 887, 85 * i + 150, self.but_sprites)
         Button("menu", "backbut", 20, 10, self.but_sprites)
 
     def render(self, screen, background_color):
         screen.fill(background_color)
         self.background_sprites.draw(screen)
         self.but_sprites.draw(screen)
+
+        color = (0, 0, 255)
+        for i in range(len(self.nums_strings)):
+
+            if int(self.nums_strings[i][2][:-1]) < 40:
+                color = (255, 0, 0)
+            elif int(self.nums_strings[i][2][:-1]) < 80:
+                color = (255, 255, 0)
+            else:
+                color = (0, 255, 0)
+
+            w = 620 + 128 - self.font.size(self.nums_strings[i][1])[0] / 2
+            screen.blit(self.font.render(self.nums_strings[i][1], True, (253, 253, 253)),
+                        (w + 1,  85 * self.nums_strings[i][0] + 147 + 1))
+            screen.blit(self.font.render(self.nums_strings[i][1], True, color), (w,  85 * self.nums_strings[i][0] + 147))
+
+            w = 620 + 128 - self.font.size(self.nums_strings[i][2])[0] / 2
+            screen.blit(self.font.render(self.nums_strings[i][2], True, (253, 253, 253)),
+                        (w + 1,  85 * self.nums_strings[i][0] + 185 + 1))
+            screen.blit(self.font.render(self.nums_strings[i][2], True, color), (w,  85 * self.nums_strings[i][0] + 185))
 
     def click(self, pos):
         for i in self.but_sprites:
@@ -91,7 +123,7 @@ class Test:
 
         BackgroundImage("background", 0, 0, self.background_sprites)
         BackgroundImage("question", 410, 13, self.background_sprites)
-        BackgroundImage("topicimage" + str(self.test_id), 527, 188, self.background_sprites)
+        BackgroundImage("images\\topicimage" + str(self.test_id), 527, 188, self.background_sprites)
         BackgroundImage("slider", 20, 90, self.background_sprites)
         BackgroundImage("dummy0", 0, 0, self.dummy_sprites)
         BackgroundImage("dummy1", 0, 686, self.dummy_sprites)
@@ -257,6 +289,13 @@ class Test:
         filename = "data/Results/results.txt"
         line = str(self.test_id) + ": "
 
+        nums = 0
+        for i in range(len(self.nums_of_selected_answers)):
+            if int(self.nums_of_selected_answers[i]) == int(self.nums_of_right_answers[i]):
+                nums += 1
+        line += str(nums) + "/" + str(len(self.nums_of_right_answers)) + " "
+        line += str(int((nums / len(self.nums_of_right_answers)) * 100)) + " "
+
         n = len(self.nums_of_selected_answers)
         for i in range(n):
             line += str(self.nums_of_selected_answers[i]) + "*" + str(self.nums_of_right_answers[i])
@@ -301,7 +340,7 @@ class Test:
                     self.change_question(self.question_id + 1)
             elif x == "slide":
                 self.slider_logic = True
-            elif "results" in str(x):
+            elif "result" in str(x):
                 self.finish()
                 return x
             elif x:
@@ -334,21 +373,51 @@ class Result:
         self.but_sprites = pygame.sprite.Group()
         self.background_sprites = pygame.sprite.Group()
 
-        filename = "data/TestTopics/TestsTopics.txt"
         BackgroundImage("background", 0, 0, self.background_sprites)
         BackgroundImage("topic", 345, 10, self.background_sprites)
 
         self.font = pygame.font.Font(os.path.join('data', "Fonts/VollkornSC-Regular.ttf"), 35)
 
+        filename = "data/TestTopics/TestsTopics.txt"
         with open(filename, 'r', encoding='utf-8') as TestsTopicsFile:
             tests_topics = [line.strip() for line in TestsTopicsFile]
 
         self.topic = tests_topics[int(test_id)]
         self.topic_x = 345 + 590 / 2 - self.font.size(self.topic)[0] / 2
+
         Button("tests", "backbut", 20, 10, self.but_sprites)
 
-        # for i in range(len(self.TestsTopics)):
-        #     Button("topic" + str(i), "topicbut", 20, 85 * i + 150, self.but_sprites, text=self.TestsTopics[i])
+        # файл с вопросами и ответами
+
+        filename = "data/Questions/topic" + test_id + ".txt"
+        with open(filename, 'r', encoding='utf-8') as TestFile:
+            file_lines = [line.strip() for line in TestFile]
+
+        self.questions = []
+        self.answers = []
+        self.nums_of_right_answers = []
+        k = 0
+        tmp_answers = []
+        for i in range(len(file_lines)):
+            if k == 0:
+                self.questions.append(str(len(self.questions) + 1) + ") " + file_lines[i])
+            elif k == 1 or k == 2 or k == 3 or k == 4:
+                tmp_answers.append([file_lines[i][3:]])
+            elif k == 5:
+                self.answers.append(tmp_answers)
+                tmp_answers = []
+                self.nums_of_right_answers.append(file_lines[i].split("&")[-1])
+            k += 1
+            if k > 5:
+                k = 0
+
+        filename = "data/Results/results.txt"
+        with open(filename, 'r', encoding='utf-8') as ResultFile:
+            file_lines = [line.strip() for line in ResultFile]
+        info = {}
+        for i in file_lines:
+            k = i.split()
+            info[k[0][:-1]] = i.split()[1:]
 
     def render(self, screen, background_color):
         screen.fill(background_color)
