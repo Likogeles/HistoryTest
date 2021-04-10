@@ -46,6 +46,7 @@ class TestsList:
 
         for i in range(len(self.TestsTopics)):
             Button("topic" + str(i), "topicbut", 20, 85 * i + 150, self.but_sprites, text=self.TestsTopics[i])
+            Button("result" + str(i), "myanswers", 887, 85 * i + 150, self.but_sprites)
         Button("menu", "backbut", 20, 10, self.but_sprites)
 
     def render(self, screen, background_color):
@@ -83,13 +84,14 @@ class Test:
 
         Button("tests", "backbut", 20, 10, self.but_sprites, self.all_but_sprites)
         self.prev_but = Button("prev", "prevquestion", 410, 629, self.prev_but_sprite, self.all_but_sprites)
-        Button("results" + str(self.test_id), "finish", 690, 629, self.but_sprites, self.all_but_sprites)
+        Button("result" + str(self.test_id), "finish", 690, 629, self.but_sprites, self.all_but_sprites)
         self.next_but = Button("next", "nextquestion", 970, 629, self.next_but_sprite, self.all_but_sprites)
 
-        self.flagbut = Button("flag", "flag", 1180, 330, self.but_sprites)
+        self.flagbut = Button("flag", "flag", 1145, 305, self.but_sprites)
 
         BackgroundImage("background", 0, 0, self.background_sprites)
         BackgroundImage("question", 410, 13, self.background_sprites)
+        BackgroundImage("topicimage" + str(self.test_id), 527, 188, self.background_sprites)
         BackgroundImage("slider", 20, 90, self.background_sprites)
         BackgroundImage("dummy0", 0, 0, self.dummy_sprites)
         BackgroundImage("dummy1", 0, 686, self.dummy_sprites)
@@ -97,19 +99,6 @@ class Test:
 
         self.question_font = pygame.font.Font(os.path.join('data', "Fonts/VollkornSC-Regular.ttf"), 25)
         self.answer_font = pygame.font.Font(os.path.join('data', "Fonts/VollkornSC-Regular.ttf"), 15)
-
-        # Работа с файлом старая
-
-        # filename = "data/Questions/Topic" + test_id + ".txt"
-        # with open(filename, 'r', encoding='utf-8') as TestsTopicsFile:
-        #     self.questions = [line.strip() for line in TestsTopicsFile]
-        # self.answers = []
-        # self.nums_of_right_answers = []
-        # self.nums_of_selected_answers = [0 for i in range(len(self.questions))]
-        # for i in range(len(self.questions)):
-        #     self.answers.append(self.questions[i].split("&")[1:5])
-        #     self.nums_of_right_answers.append(self.questions[i].split("&")[-1])
-        #     self.questions[i] = str(i + 1) + ") " + self.questions[i].split("&")[0]
 
         # Работа с файлом новая
 
@@ -126,7 +115,7 @@ class Test:
             if k == 0:
                 self.questions.append(str(len(self.questions) + 1) + ") " + file_lines[i])
             elif k == 1 or k == 2 or k == 3 or k == 4:
-                tmp_answers.append(file_lines[i][3:])
+                tmp_answers.append([file_lines[i][3:]])
             elif k == 5:
                 self.answers.append(tmp_answers)
                 tmp_answers = []
@@ -134,6 +123,27 @@ class Test:
             k += 1
             if k > 5:
                 k = 0
+
+        # Строки ответов
+
+        answer_string_w = 300 / (self.answer_font.size("Wa")[0] / 2)
+        for i in range(len(self.answers)):
+            for j in range(len(self.answers[i])):
+                answer_words = self.answers[i][j][0].split()
+                strings = []
+                string = ""
+                leng = 0
+                for k in answer_words:
+                    if leng + len(k) > answer_string_w:
+                        strings.append(string[:-1])
+                        leng = 0
+                        string = ""
+                    string += k + " "
+                    leng += len(k) + 1
+                strings.append(string[:-1])
+
+                self.answers[i][j] = strings
+
         self.nums_of_selected_answers = [0 for i in range(len(self.answers))]
 
         # Создание кнопок списка вопросов
@@ -214,16 +224,20 @@ class Test:
             strings_y += self.question_font.size(i)[1]
 
         # Отрисовка ответов:
+
+        string_height = self.answer_font.size("К")[1] + 2
         for i in range(4):
             if self.answer_buts[i].charge_log:
                 for j in range(-2, 6):
-                    screen.blit(self.question_font.render(
-                        self.answers[self.question_id][i], True, (128, 128, 128)),
-                        (440 + 400 * (i % 2) + j, 425 + (100 if i == 2 or i == 3 else 0) + j))
+                    for k in range(len(self.answers[self.question_id][i])):
+                        screen.blit(self.question_font.render(
+                            self.answers[self.question_id][i][k], True, (128, 128, 128)),
+                            (440 + 400 * (i % 2) + j, 425 + (100 if i == 2 or i == 3 else 0) + j + k * string_height))
 
-            screen.blit(self.question_font.render(
-                self.answers[self.question_id][i], True, (253, 253, 253)),
-                (440 + 400 * (i % 2), 425 + (100 if i == 2 or i == 3 else 0)))
+            for k in range(len(self.answers[self.question_id][i])):
+                screen.blit(self.question_font.render(
+                    self.answers[self.question_id][i][k], True, (253, 253, 253)),
+                    (440 + 400 * (i % 2), 425 + (100 if i == 2 or i == 3 else 0) + k * string_height))
 
     def change_question(self, x):
         self.questions_buts[self.question_id].now = False
@@ -287,8 +301,9 @@ class Test:
                     self.change_question(self.question_id + 1)
             elif x == "slide":
                 self.slider_logic = True
-            elif x == "tests":
+            elif "results" in str(x):
                 self.finish()
+                return x
             elif x:
                 return x
         self.mouse_motion(pos)
@@ -311,4 +326,43 @@ class Test:
                 for i in self.qtbut_sprites:
                     i.rect.y -= x * self.k_of_slide
         for i in self.all_but_sprites:
+            i.charge_switch(pos)
+
+
+class Result:
+    def __init__(self, test_id):
+        self.but_sprites = pygame.sprite.Group()
+        self.background_sprites = pygame.sprite.Group()
+
+        filename = "data/TestTopics/TestsTopics.txt"
+        BackgroundImage("background", 0, 0, self.background_sprites)
+        BackgroundImage("topic", 345, 10, self.background_sprites)
+
+        self.font = pygame.font.Font(os.path.join('data', "Fonts/VollkornSC-Regular.ttf"), 35)
+
+        with open(filename, 'r', encoding='utf-8') as TestsTopicsFile:
+            tests_topics = [line.strip() for line in TestsTopicsFile]
+
+        self.topic = tests_topics[int(test_id)]
+        self.topic_x = 345 + 590 / 2 - self.font.size(self.topic)[0] / 2
+        Button("tests", "backbut", 20, 10, self.but_sprites)
+
+        # for i in range(len(self.TestsTopics)):
+        #     Button("topic" + str(i), "topicbut", 20, 85 * i + 150, self.but_sprites, text=self.TestsTopics[i])
+
+    def render(self, screen, background_color):
+        screen.fill(background_color)
+        self.background_sprites.draw(screen)
+        self.but_sprites.draw(screen)
+
+        screen.blit(self.font.render(self.topic, True, (253, 253, 253)), (self.topic_x, 27))
+
+    def click(self, pos):
+        for i in self.but_sprites:
+            if i.click(pos):
+                return i.name
+        return "x"
+
+    def mouse_motion(self, pos):
+        for i in self.but_sprites:
             i.charge_switch(pos)

@@ -1,7 +1,7 @@
 import pygame
 import sqlite3
 import sys
-from scenes import Menu, TestsList, Test
+from scenes import Menu, TestsList, Test, Result
 from functions import terminate
 
 # Ссылка на Github: https://github.com/Likogeles/HistoryTest
@@ -36,6 +36,8 @@ while True:
             Scene = TestsList()
         elif scenename[:5] == "topic":
             Scene = Test(scenename[5:])
+        elif scenename[:6] == "result":
+            Scene = Result(scenename[6:])
         else:
             print("Сцена '" + scenename + "' не найдена")
             terminate()
