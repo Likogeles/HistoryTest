@@ -77,9 +77,9 @@ class TestsList:
             if int(self.nums_strings[i][2][:-1]) < 40:
                 color = (255, 0, 0)
             elif int(self.nums_strings[i][2][:-1]) < 60:
-                color = (255, 255, 0)
-            elif int(self.nums_strings[i][2][:-1]) < 80:
                 color = (255, 127, 39)
+            elif int(self.nums_strings[i][2][:-1]) < 80:
+                color = (255, 255, 0)
             else:
                 color = (0, 255, 0)
 
@@ -548,9 +548,9 @@ class Result:
         if int(nums[1]) < 40:
             color = (255, 0, 0)
         elif int(nums[1]) < 60:
-            color = (255, 255, 0)
-        elif int(nums[1]) < 80:
             color = (255, 127, 39)
+        elif int(nums[1]) < 80:
+            color = (255, 255, 0)
         else:
             color = (0, 255, 0)
         w = 145
