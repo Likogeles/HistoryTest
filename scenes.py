@@ -507,7 +507,12 @@ class Result:
             k1 = QuestionImage(30, self.questions_list_y, 580, self.questions[i], self.qtim_sprites)
 
             right = self.answers[i][int(self.answers_id[i][0]) - 1][0] == self.answers[i][int(self.answers_id[i][1]) - 1][0]
-            k2 = QuestionImage(615, self.questions_list_y, 300, self.answers[i][int(self.answers_id[i][0]) - 1][0], self.qtim_sprites, right=right)
+
+            if int(self.answers_id[i][0]):
+                k2 = QuestionImage(615, self.questions_list_y, 300, self.answers[i][int(self.answers_id[i][0]) - 1][0], self.qtim_sprites, right=right)
+            else:
+                k2 = QuestionImage(615, self.questions_list_y, 300, "Нет ответа", self.qtim_sprites, right=False)
+
             k3 = QuestionImage(920, self.questions_list_y, 300, self.answers[i][int(self.answers_id[i][1]) - 1][0], self.qtim_sprites, right=True)
 
             k = max([k1.height(), k2.height(), k3.height()])
