@@ -556,8 +556,8 @@ class Result:
         w = 145
         screen.blit(self.font.render(nums[0], True, (0, 0, 0)), (w + 1, 11))
         screen.blit(self.font.render(nums[0], True, color), (w, 10))
-        screen.blit(self.font.render(nums[1], True, (0, 0, 0)), (w + 1, 43))
-        screen.blit(self.font.render(nums[1], True, color), (w, 42))
+        screen.blit(self.font.render(nums[1] + "%", True, (0, 0, 0)), (w + 1, 43))
+        screen.blit(self.font.render(nums[1] + "%", True, color), (w, 42))
         w = w + 125 - self.font.size(nums[2])[0]
         color = (0, 0, 0)
         screen.blit(self.font.render(nums[2], True, color), (w + 101, 26))
