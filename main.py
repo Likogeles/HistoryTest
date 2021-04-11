@@ -56,16 +56,15 @@ while True:
                 scenename = Scene.click(event.pos)
 
         elif event.type == pygame.MOUSEBUTTONUP:
-            if event.button == 1 and scenename[:5] == "topic":
+            if event.button == 1 and (scenename[:5] == "topic" or scenename[:6] == "result"):
                 Scene.anti_click()
 
         elif event.type == pygame.MOUSEMOTION:
             Scene.mouse_motion(event.pos)
             mouse_pos = event.pos
         elif event.type == pygame.MOUSEWHEEL:
-            if scenename[:5] == "topic":
+            if scenename[:5] == "topic" or scenename[:6] == "result":
                 Scene.slide(mouse_pos, event.y, False)
-
 
         Scene.render(screen, background_color)
     pygame.display.flip()

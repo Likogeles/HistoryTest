@@ -4,7 +4,8 @@ import time
 from classes import BackgroundImage
 from classes import Button
 from classes import QuestionButton as QtButton
-from classes import Slider
+from classes import Slider, BigSlider
+from classes import QuestionImage
 
 
 class Menu:
@@ -143,9 +144,6 @@ class Test:
 
         BackgroundImage("images\\topicimage" + str(self.test_id), 410, 13, self.background_sprites)
 
-        # BackgroundImage("question", 410, 13, self.background_sprites)
-        # BackgroundImage("images\\topicimage" + str(self.test_id), 527, 188, self.background_sprites)
-
         BackgroundImage("slider", 20, 90, self.background_sprites)
         BackgroundImage("dummy0", 0, 0, self.dummy_sprites)
         BackgroundImage("dummy1", 0, 686, self.dummy_sprites)
@@ -220,6 +218,7 @@ class Test:
 
         self.questions_buts[0].now = True
         self.questions_buts[0].charge_switch((0, 0))
+
         # Работа со слайдером
 
         self.k_of_slide = int((self.questions_list_y - 100) / (590 - 70))
@@ -443,8 +442,14 @@ class Result:
     def __init__(self, test_id):
         self.but_sprites = pygame.sprite.Group()
         self.background_sprites = pygame.sprite.Group()
+        self.qtim_sprites = pygame.sprite.Group()
+        self.background_sprites = pygame.sprite.Group()
+        self.backbackground_sprites = pygame.sprite.Group()
+        self.slider_sprite = pygame.sprite.Group()
 
-        BackgroundImage("background", 0, 0, self.background_sprites)
+        BackgroundImage("background", 0, 0, self.backbackground_sprites)
+        BackgroundImage("empty0", 0, 0, self.background_sprites)
+        BackgroundImage("empty1", 0, 705, self.background_sprites)
         BackgroundImage("topic", 405, 10, self.background_sprites)
         BackgroundImage("nums", 130, 10, self.background_sprites)
 
@@ -456,7 +461,6 @@ class Result:
 
         self.topic = tests_topics[int(test_id)].split('*')[0]
         self.topic_x = 405 + 590 / 2 - self.font.size(self.topic)[0] / 2
-        # self.topic_x = 345 + 590 / 2 - self.font.size(self.topic)[0] / 2
 
         Button("tests", "backbut", 20, 10, self.but_sprites)
 
@@ -467,9 +471,20 @@ class Result:
             file_lines = [line.strip() for line in TestFile]
 
         self.questions = []
-
-        for i in range(0, len(file_lines), 6):
-            self.questions.append(str(len(self.questions) + 1) + ") " + file_lines[i])
+        self.answers = []
+        k = 0
+        tmp_answers = []
+        for i in range(len(file_lines)):
+            if k == 0:
+                self.questions.append(str(len(self.questions) + 1) + ") " + file_lines[i])
+            elif k == 1 or k == 2 or k == 3 or k == 4:
+                tmp_answers.append([file_lines[i][3:]])
+            elif k == 5:
+                self.answers.append(tmp_answers)
+                tmp_answers = []
+            k += 1
+            if k > 5:
+                k = 0
 
         filename = "data/Results/results.txt"
         with open(filename, 'r', encoding='utf-8') as ResultFile:
@@ -481,14 +496,42 @@ class Result:
 
         self.info = info[test_id]
 
-        # Генерация вопросов
-        for i in self.questions:
-            pass
+        # Генерация вопросов и ответов
+        answer = self.info[3].split('_')
+        self.answers_id = []
+        for i in answer:
+            self.answers_id.append(i.split('*'))
+
+        self.questions_list_y = 110
+        for i in range(len(self.questions)):
+            k1 = QuestionImage(30, self.questions_list_y, 580, self.questions[i], self.qtim_sprites)
+
+            right = self.answers[i][int(self.answers_id[i][0]) - 1][0] == self.answers[i][int(self.answers_id[i][1]) - 1][0]
+            k2 = QuestionImage(615, self.questions_list_y, 300, self.answers[i][int(self.answers_id[i][0]) - 1][0], self.qtim_sprites, right=right)
+            k3 = QuestionImage(920, self.questions_list_y, 300, self.answers[i][int(self.answers_id[i][1]) - 1][0], self.qtim_sprites, right=True)
+
+            k = max([k1.height(), k2.height(), k3.height()])
+            self.questions_list_y += k + 5
+
+        # Работа со слайдером
+
+        self.k_of_slide = int((self.questions_list_y - 100) / (590 - 70))
+
+        self.slider = 0
+        if self.questions_list_y > 700:
+            self.slider = BigSlider(1230, 110, (0, 100, 1280, 600), self.slider_sprite, self.but_sprites)
+            self.slider_logic = False
+            self.slider_mouse_pos_y = 0
 
     def render(self, screen, background_color):
-        screen.fill(background_color)
+
+        self.backbackground_sprites.draw(screen)
+        self.qtim_sprites.draw(screen)
         self.background_sprites.draw(screen)
         self.but_sprites.draw(screen)
+        self.slider_sprite.draw(screen)
+
+        pygame.draw.rect(screen, (70, 54, 37), (20, 100, 1250, 605), 3)
 
         # отрисовка темы
         screen.blit(self.font.render(self.topic, True, (0, 0, 0)), (self.topic_x + 1, 28))
@@ -505,16 +548,12 @@ class Result:
             color = (255, 127, 39)
         else:
             color = (0, 255, 0)
-
         w = 145
         screen.blit(self.font.render(nums[0], True, (0, 0, 0)), (w + 1, 11))
         screen.blit(self.font.render(nums[0], True, color), (w, 10))
-
         screen.blit(self.font.render(nums[1], True, (0, 0, 0)), (w + 1, 43))
         screen.blit(self.font.render(nums[1], True, color), (w, 42))
-
         w = w + 125 - self.font.size(nums[2])[0]
-
         color = (0, 0, 0)
         screen.blit(self.font.render(nums[2], True, color), (w + 101, 26))
         color = (253, 253, 253)
@@ -522,10 +561,29 @@ class Result:
 
     def click(self, pos):
         for i in self.but_sprites:
-            if i.click(pos):
-                return i.name
+            x = i.click(pos)
+            if x == "slide":
+                self.slider_logic = True
+            elif x:
+                return x
+        self.mouse_motion(pos)
         return "x"
 
+    def anti_click(self):
+        self.slider_logic = False
+
     def mouse_motion(self, pos):
+        if self.slider_logic:
+            self.slide(pos, -(pos[1] - self.slider_mouse_pos_y) * 0.125, True)
+        for i in self.but_sprites:
+            i.charge_switch(pos)
+        self.slider_mouse_pos_y = pos[1]
+
+    def slide(self, pos, y, mouse_logic):
+        if self.slider:
+            x = self.slider.slide(pos, y, mouse_logic)
+            if x:
+                for i in self.qtim_sprites:
+                    i.rect.y -= x * self.k_of_slide
         for i in self.but_sprites:
             i.charge_switch(pos)
