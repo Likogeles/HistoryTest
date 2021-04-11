@@ -40,6 +40,7 @@ class Button(pygame.sprite.Sprite):
         self.text = text
         self.text_cords = (20, 20)
         if self.text != 'x':
+            self.image.blit(self.font.render(self.text, True, (0, 0, 0)), (self.text_cords[0] + 1, self.text_cords[1] + 1))
             self.image.blit(self.font.render(self.text, True, (253, 253, 253)), self.text_cords)
 
     def click(self, pos):  # Возвращает True если pos находится в области кнопки, иначе возвращает False
@@ -69,6 +70,7 @@ class Button(pygame.sprite.Sprite):
                 for i in range(-2, 6):
                     self.image.blit(self.font.render(self.text, True,
                                                      (128, 128, 128)), (self.text_cords[0] + i, self.text_cords[1] + i))
+                self.image.blit(self.font.render(self.text, True, (0, 0, 0)), (self.text_cords[0] + 1, self.text_cords[1] + 1))
                 self.image.blit(self.font.render(self.text, True, (253, 253, 253)), self.text_cords)
 
 
@@ -196,3 +198,11 @@ class Slider(pygame.sprite.Sprite):
                 self.rect.y <= pos[1] <= self.rect.y + self.h:
             return "slide"
 
+
+class QuestionImage(pygame.sprite.Sprite):
+    def __init__(self, imagename, x, y, *group, color_key=0):
+        super().__init__(*group)
+        self.image = load_image("Sprites/" + imagename + ".png", color_key)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y

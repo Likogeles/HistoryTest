@@ -43,11 +43,14 @@ while True:
             terminate()
         oldscenename = scenename
 
+    if scenename[:5] == "topic":
+        if Scene.need_switch_scene_to_result:
+            scenename = Scene.click((0, 0))
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             print("Программа завершена по инициативе пользователя")
             terminate()
-
         elif event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
                 scenename = Scene.click(event.pos)
@@ -59,10 +62,10 @@ while True:
         elif event.type == pygame.MOUSEMOTION:
             Scene.mouse_motion(event.pos)
             mouse_pos = event.pos
-
         elif event.type == pygame.MOUSEWHEEL:
             if scenename[:5] == "topic":
                 Scene.slide(mouse_pos, event.y, False)
+
 
         Scene.render(screen, background_color)
     pygame.display.flip()

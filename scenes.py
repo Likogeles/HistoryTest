@@ -1,5 +1,6 @@
 import pygame
 import os
+import time
 from classes import BackgroundImage
 from classes import Button
 from classes import QuestionButton as QtButton
@@ -35,12 +36,12 @@ class TestsList:
         self.but_sprites = pygame.sprite.Group()
         self.background_sprites = pygame.sprite.Group()
 
-        filename = "data/TestTopics/TestsTopics.txt"
         BackgroundImage("background", 0, 0, self.background_sprites)
         BackgroundImage("topiclist", 271, 10, self.background_sprites)
 
         self.font = pygame.font.Font(os.path.join('data', "Fonts/VollkornSC-Regular.ttf"), 35)
 
+        filename = "data/TestTopics/TestsTopics.txt"
         with open(filename, 'r', encoding='utf-8') as TestsTopicsFile:
             self.TestsTopics = [line.strip() for line in TestsTopicsFile]
 
@@ -48,15 +49,17 @@ class TestsList:
         with open(filename, 'r', encoding='utf-8') as ResultFile:
             file_lines = [line.strip() for line in ResultFile]
         info = {}
+
         for i in file_lines:
             k = i.split()
             info[k[0][:-1]] = i.split()[1:]
 
         self.nums_strings = []
         for i in range(len(self.TestsTopics)):
+            self.TestsTopics[i] = self.TestsTopics[i].split('*')[:-1][0]
             Button("topic" + str(i), "topicbut", 20, 85 * i + 150, self.but_sprites, text=self.TestsTopics[i])
             if str(i) in info:
-                self.nums_strings.append([i, info[str(i)][0], info[str(i)][1] + "%"])
+                self.nums_strings.append([i, info[str(i)][0], info[str(i)][1] + "%", info[str(i)][2]])
                 BackgroundImage("nums", 620,  85 * i + 150, self.background_sprites)
                 Button("result" + str(i), "myanswers", 887, 85 * i + 150, self.but_sprites)
         Button("menu", "backbut", 20, 10, self.but_sprites)
@@ -67,24 +70,38 @@ class TestsList:
         self.but_sprites.draw(screen)
 
         color = (0, 0, 255)
+
         for i in range(len(self.nums_strings)):
 
             if int(self.nums_strings[i][2][:-1]) < 40:
                 color = (255, 0, 0)
-            elif int(self.nums_strings[i][2][:-1]) < 80:
+            elif int(self.nums_strings[i][2][:-1]) < 60:
                 color = (255, 255, 0)
+            elif int(self.nums_strings[i][2][:-1]) < 80:
+                color = (255, 127, 39)
             else:
                 color = (0, 255, 0)
 
-            w = 620 + 128 - self.font.size(self.nums_strings[i][1])[0] / 2
-            screen.blit(self.font.render(self.nums_strings[i][1], True, (253, 253, 253)),
+            # Результаты теста
+
+            # w = 620 + 128 - self.font.size(self.nums_strings[i][1])[0] / 2
+
+            w = 630
+            screen.blit(self.font.render(self.nums_strings[i][1], True, (0, 0, 0)),
                         (w + 1,  85 * self.nums_strings[i][0] + 147 + 1))
+
             screen.blit(self.font.render(self.nums_strings[i][1], True, color), (w,  85 * self.nums_strings[i][0] + 147))
 
-            w = 620 + 128 - self.font.size(self.nums_strings[i][2])[0] / 2
-            screen.blit(self.font.render(self.nums_strings[i][2], True, (253, 253, 253)),
+            screen.blit(self.font.render(self.nums_strings[i][2], True, (0, 0, 0)),
                         (w + 1,  85 * self.nums_strings[i][0] + 185 + 1))
+
             screen.blit(self.font.render(self.nums_strings[i][2], True, color), (w,  85 * self.nums_strings[i][0] + 185))
+
+            w = w + 130 - self.font.size(self.nums_strings[i][3])[0]
+            color = (0, 0, 0)
+            screen.blit(self.font.render(self.nums_strings[i][3], True, color), (w + 100 + 1,  85 * self.nums_strings[i][0] + 165 + 1))
+            color = (253, 253, 253)
+            screen.blit(self.font.render(self.nums_strings[i][3], True, color), (w + 100,  85 * self.nums_strings[i][0] + 165))
 
     def click(self, pos):
         for i in self.but_sprites:
@@ -99,6 +116,7 @@ class TestsList:
 
 class Test:
     def __init__(self, test_id):
+        self.need_switch_scene_to_result = False
         self.qtbut_sprites = pygame.sprite.Group()
         self.but_sprites = pygame.sprite.Group()
         self.all_but_sprites = pygame.sprite.Group()
@@ -122,17 +140,22 @@ class Test:
         self.flagbut = Button("flag", "flag", 1145, 305, self.but_sprites)
 
         BackgroundImage("background", 0, 0, self.background_sprites)
-        BackgroundImage("question", 410, 13, self.background_sprites)
-        BackgroundImage("images\\topicimage" + str(self.test_id), 527, 188, self.background_sprites)
+
+        BackgroundImage("images\\topicimage" + str(self.test_id), 410, 13, self.background_sprites)
+
+        # BackgroundImage("question", 410, 13, self.background_sprites)
+        # BackgroundImage("images\\topicimage" + str(self.test_id), 527, 188, self.background_sprites)
+
         BackgroundImage("slider", 20, 90, self.background_sprites)
         BackgroundImage("dummy0", 0, 0, self.dummy_sprites)
         BackgroundImage("dummy1", 0, 686, self.dummy_sprites)
         BackgroundImage("timer", 117, 10, self.dummy_sprites)
 
         self.question_font = pygame.font.Font(os.path.join('data', "Fonts/VollkornSC-Regular.ttf"), 25)
+        self.timer_font = pygame.font.Font(os.path.join('data', "Fonts/consolas.ttf"), 40)
         self.answer_font = pygame.font.Font(os.path.join('data', "Fonts/VollkornSC-Regular.ttf"), 15)
 
-        # Работа с файлом новая
+        # Работа с файлом вопросов
 
         filename = "data/Questions/topic" + test_id + ".txt"
         with open(filename, 'r', encoding='utf-8') as TestsTopicsFile:
@@ -227,6 +250,16 @@ class Test:
             self.strings.append([])
             self.strings[k].append(string)
 
+        # работа таймером
+
+        filename = "data/TestTopics/TestsTopics.txt"
+        with open(filename, 'r', encoding='utf-8') as TestsTopicsFile:
+            file_lines = [line.strip() for line in TestsTopicsFile]
+
+        self.timer_seconds = int(file_lines[int(test_id)].split('*')[-1]) * 60
+
+        self.start_time = time.time()
+
     def render(self, screen, background_color):
         screen.fill(background_color)
         self.background_sprites.draw(screen)
@@ -252,8 +285,33 @@ class Test:
 
         strings_y = 30
         for i in self.strings[self.question_id]:
-            screen.blit(self.question_font.render(i, True, (0, 0, 0)), (430, strings_y))
+            screen.blit(self.question_font.render(i, True, (0, 0, 0)), (431, strings_y + 1))
+            screen.blit(self.question_font.render(i, True, (0, 0, 0)), (431, strings_y - 1))
+            screen.blit(self.question_font.render(i, True, (0, 0, 0)), (429, strings_y + 1))
+            screen.blit(self.question_font.render(i, True, (0, 0, 0)), (429, strings_y - 1))
+            screen.blit(self.question_font.render(i, True, (253, 253, 253)), (430, strings_y))
             strings_y += self.question_font.size(i)[1]
+
+        # отрисовка времени
+
+        seconds = self.timer_seconds - int(time.time() - self.start_time)
+
+        if seconds <= 0:
+            self.need_switch_scene_to_result = True
+
+        minutes = int(seconds / 60)
+        seconds = str(seconds % 60)
+        if len(seconds) == 1:
+            seconds = "0" + seconds
+
+        text = str(minutes) + ":" + seconds
+        timer_x = 117 + 130 - self.timer_font.size(text)[0] / 2
+
+        screen.blit(self.timer_font.render(text, True, (0, 0, 0)), (timer_x + 1, 40 + 1))
+        if minutes < 5:
+            screen.blit(self.timer_font.render(text, True, (250, 0, 0)), (timer_x, 40))
+        else:
+            screen.blit(self.timer_font.render(text, True, (253, 253, 253)), (timer_x, 40))
 
         # Отрисовка ответов:
 
@@ -267,6 +325,9 @@ class Test:
                             (440 + 400 * (i % 2) + j, 425 + (100 if i == 2 or i == 3 else 0) + j + k * string_height))
 
             for k in range(len(self.answers[self.question_id][i])):
+                screen.blit(self.question_font.render(
+                    self.answers[self.question_id][i][k], True, (0, 0, 0)),
+                    (440 + 400 * (i % 2) + 1, 425 + (100 if i == 2 or i == 3 else 0) + k * string_height + 1))
                 screen.blit(self.question_font.render(
                     self.answers[self.question_id][i][k], True, (253, 253, 253)),
                     (440 + 400 * (i % 2), 425 + (100 if i == 2 or i == 3 else 0) + k * string_height))
@@ -296,6 +357,13 @@ class Test:
         line += str(nums) + "/" + str(len(self.nums_of_right_answers)) + " "
         line += str(int((nums / len(self.nums_of_right_answers)) * 100)) + " "
 
+        seconds = int(time.time() - self.start_time)
+        minutes = str(int(seconds / 60))
+        seconds = str(seconds % 60)
+        if len(seconds) == 1:
+            seconds = "0" + seconds
+        line += minutes + ":" + seconds + " "
+
         n = len(self.nums_of_selected_answers)
         for i in range(n):
             line += str(self.nums_of_selected_answers[i]) + "*" + str(self.nums_of_right_answers[i])
@@ -307,6 +375,9 @@ class Test:
             ResultsFile.write(line)
 
     def click(self, pos):
+        if self.need_switch_scene_to_result:
+            pos = (695, 635)
+
         if self.flagbut.click(pos):
             self.questions_buts[self.question_id].flag = not self.questions_buts[self.question_id].flag
             self.flagbut.charge_lock = not self.flagbut.charge_lock
@@ -374,7 +445,8 @@ class Result:
         self.background_sprites = pygame.sprite.Group()
 
         BackgroundImage("background", 0, 0, self.background_sprites)
-        BackgroundImage("topic", 345, 10, self.background_sprites)
+        BackgroundImage("topic", 405, 10, self.background_sprites)
+        BackgroundImage("nums", 130, 10, self.background_sprites)
 
         self.font = pygame.font.Font(os.path.join('data', "Fonts/VollkornSC-Regular.ttf"), 35)
 
@@ -382,8 +454,9 @@ class Result:
         with open(filename, 'r', encoding='utf-8') as TestsTopicsFile:
             tests_topics = [line.strip() for line in TestsTopicsFile]
 
-        self.topic = tests_topics[int(test_id)]
-        self.topic_x = 345 + 590 / 2 - self.font.size(self.topic)[0] / 2
+        self.topic = tests_topics[int(test_id)].split('*')[0]
+        self.topic_x = 405 + 590 / 2 - self.font.size(self.topic)[0] / 2
+        # self.topic_x = 345 + 590 / 2 - self.font.size(self.topic)[0] / 2
 
         Button("tests", "backbut", 20, 10, self.but_sprites)
 
@@ -394,22 +467,9 @@ class Result:
             file_lines = [line.strip() for line in TestFile]
 
         self.questions = []
-        self.answers = []
-        self.nums_of_right_answers = []
-        k = 0
-        tmp_answers = []
-        for i in range(len(file_lines)):
-            if k == 0:
-                self.questions.append(str(len(self.questions) + 1) + ") " + file_lines[i])
-            elif k == 1 or k == 2 or k == 3 or k == 4:
-                tmp_answers.append([file_lines[i][3:]])
-            elif k == 5:
-                self.answers.append(tmp_answers)
-                tmp_answers = []
-                self.nums_of_right_answers.append(file_lines[i].split("&")[-1])
-            k += 1
-            if k > 5:
-                k = 0
+
+        for i in range(0, len(file_lines), 6):
+            self.questions.append(str(len(self.questions) + 1) + ") " + file_lines[i])
 
         filename = "data/Results/results.txt"
         with open(filename, 'r', encoding='utf-8') as ResultFile:
@@ -419,12 +479,46 @@ class Result:
             k = i.split()
             info[k[0][:-1]] = i.split()[1:]
 
+        self.info = info[test_id]
+
+        # Генерация вопросов
+        for i in self.questions:
+            pass
+
     def render(self, screen, background_color):
         screen.fill(background_color)
         self.background_sprites.draw(screen)
         self.but_sprites.draw(screen)
 
+        # отрисовка темы
+        screen.blit(self.font.render(self.topic, True, (0, 0, 0)), (self.topic_x + 1, 28))
         screen.blit(self.font.render(self.topic, True, (253, 253, 253)), (self.topic_x, 27))
+
+        # отрисовка результатов
+
+        nums = self.info[:3]
+        if int(nums[1]) < 40:
+            color = (255, 0, 0)
+        elif int(nums[1]) < 60:
+            color = (255, 255, 0)
+        elif int(nums[1]) < 80:
+            color = (255, 127, 39)
+        else:
+            color = (0, 255, 0)
+
+        w = 145
+        screen.blit(self.font.render(nums[0], True, (0, 0, 0)), (w + 1, 11))
+        screen.blit(self.font.render(nums[0], True, color), (w, 10))
+
+        screen.blit(self.font.render(nums[1], True, (0, 0, 0)), (w + 1, 43))
+        screen.blit(self.font.render(nums[1], True, color), (w, 42))
+
+        w = w + 125 - self.font.size(nums[2])[0]
+
+        color = (0, 0, 0)
+        screen.blit(self.font.render(nums[2], True, color), (w + 101, 26))
+        color = (253, 253, 253)
+        screen.blit(self.font.render(nums[2], True, color), (w + 100, 25))
 
     def click(self, pos):
         for i in self.but_sprites:
