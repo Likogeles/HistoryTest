@@ -284,11 +284,11 @@ class Test:
 
         strings_y = 30
         for i in self.strings[self.question_id]:
-            screen.blit(self.question_font.render(i, True, (0, 0, 0)), (431, strings_y + 1))
-            screen.blit(self.question_font.render(i, True, (0, 0, 0)), (431, strings_y - 1))
-            screen.blit(self.question_font.render(i, True, (0, 0, 0)), (429, strings_y + 1))
-            screen.blit(self.question_font.render(i, True, (0, 0, 0)), (429, strings_y - 1))
-            screen.blit(self.question_font.render(i, True, (253, 253, 253)), (430, strings_y))
+            screen.blit(self.question_font.render(i, True, (253, 253, 253)), (431, strings_y + 1))
+            screen.blit(self.question_font.render(i, True, (253, 253, 253)), (431, strings_y - 1))
+            screen.blit(self.question_font.render(i, True, (253, 253, 253)), (429, strings_y + 1))
+            screen.blit(self.question_font.render(i, True, (253, 253, 253)), (429, strings_y - 1))
+            screen.blit(self.question_font.render(i, True, (0, 0, 0)), (430, strings_y))
             strings_y += self.question_font.size(i)[1]
 
         # отрисовка времени
