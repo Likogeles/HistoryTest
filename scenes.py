@@ -58,11 +58,11 @@ class TestsList:
         self.nums_strings = []
         for i in range(len(self.TestsTopics)):
             self.TestsTopics[i] = self.TestsTopics[i].split('*')[:-1][0]
-            Button("topic" + str(i), "topicbut", 20, 85 * i + 150, self.but_sprites, text=self.TestsTopics[i])
+            Button("topic" + str(i), "topicbut", 20, 85 * i + 100, self.but_sprites, text=self.TestsTopics[i])
             if str(i) in info:
                 self.nums_strings.append([i, info[str(i)][0], info[str(i)][1] + "%", info[str(i)][2]])
-                BackgroundImage("nums", 620,  85 * i + 150, self.background_sprites)
-                Button("result" + str(i), "myanswers", 887, 85 * i + 150, self.but_sprites)
+                BackgroundImage("nums", 645,  85 * i + 100, self.background_sprites)
+                Button("result" + str(i), "myanswers", 850, 85 * i + 100, self.but_sprites)
         Button("menu", "backbut", 20, 10, self.but_sprites)
 
     def render(self, screen, background_color):
@@ -87,22 +87,22 @@ class TestsList:
 
             # w = 620 + 128 - self.font.size(self.nums_strings[i][1])[0] / 2
 
-            w = 630
+            w = 655
             screen.blit(self.font.render(self.nums_strings[i][1], True, (0, 0, 0)),
-                        (w + 1,  85 * self.nums_strings[i][0] + 147 + 1))
+                        (w + 1,  85 * self.nums_strings[i][0] + 90 + 1))
 
-            screen.blit(self.font.render(self.nums_strings[i][1], True, color), (w,  85 * self.nums_strings[i][0] + 147))
+            screen.blit(self.font.render(self.nums_strings[i][1], True, color), (w,  85 * self.nums_strings[i][0] + 90))
 
             screen.blit(self.font.render(self.nums_strings[i][2], True, (0, 0, 0)),
-                        (w + 1,  85 * self.nums_strings[i][0] + 185 + 1))
+                        (w + 1,  85 * self.nums_strings[i][0] + 125 + 1))
 
-            screen.blit(self.font.render(self.nums_strings[i][2], True, color), (w,  85 * self.nums_strings[i][0] + 185))
+            screen.blit(self.font.render(self.nums_strings[i][2], True, color), (w,  85 * self.nums_strings[i][0] + 125))
 
             w = w + 130 - self.font.size(self.nums_strings[i][3])[0]
             color = (0, 0, 0)
-            screen.blit(self.font.render(self.nums_strings[i][3], True, color), (w + 100 + 1,  85 * self.nums_strings[i][0] + 165 + 1))
+            screen.blit(self.font.render(self.nums_strings[i][3], True, color), (w + 30 + 1,  85 * self.nums_strings[i][0] + 110 + 1))
             color = (253, 253, 253)
-            screen.blit(self.font.render(self.nums_strings[i][3], True, color), (w + 100,  85 * self.nums_strings[i][0] + 165))
+            screen.blit(self.font.render(self.nums_strings[i][3], True, color), (w + 30,  85 * self.nums_strings[i][0] + 110))
 
     def click(self, pos):
         for i in self.but_sprites:
@@ -138,13 +138,13 @@ class Test:
         Button("result" + str(self.test_id), "finish", 690, 629, self.but_sprites, self.all_but_sprites)
         self.next_but = Button("next", "nextquestion", 970, 629, self.next_but_sprite, self.all_but_sprites)
 
-        self.flagbut = Button("flag", "flag", 1145, 305, self.but_sprites)
+        # self.flagbut = Button("flag", "flag", 1145, 305, self.but_sprites)
 
         BackgroundImage("background", 0, 0, self.background_sprites)
 
-        BackgroundImage("images\\topicimage" + str(self.test_id), 410, 13, self.background_sprites)
+        BackgroundImage("question", 410, 13, self.background_sprites)
 
-        BackgroundImage("slider", 20, 90, self.background_sprites)
+        # BackgroundImage("slider", 20, 90, self.background_sprites)
         BackgroundImage("dummy0", 0, 0, self.dummy_sprites)
         BackgroundImage("dummy1", 0, 686, self.dummy_sprites)
         BackgroundImage("timer", 117, 10, self.dummy_sprites)
@@ -201,11 +201,11 @@ class Test:
 
         # Создание кнопок списка вопросов
 
-        self.questions_buts = []
-        for i in range(len(self.questions)):
-            k = QtButton(i, 30, self.questions_list_y, 345, self.questions[i], self.qtbut_sprites, self.all_but_sprites)
-            self.questions_buts.append(k)
-            self.questions_list_y += k.height() + 5
+        # self.questions_buts = []
+        # for i in range(len(self.questions)):
+        #     k = QtButton(i, 30, self.questions_list_y, 345, self.questions[i], self.qtbut_sprites, self.all_but_sprites)
+        #     self.questions_buts.append(k)
+        #     self.questions_list_y += k.height() + 5
 
         # Создание кнопок ответов
 
@@ -216,18 +216,18 @@ class Test:
             Button("x", "answerbut", 830, 520, self.answer_but_sprites, self.all_but_sprites, answer_id=4)
         ]
 
-        self.questions_buts[0].now = True
-        self.questions_buts[0].charge_switch((0, 0))
+        # self.questions_buts[0].now = True
+        # self.questions_buts[0].charge_switch((0, 0))
 
         # Работа со слайдером
 
-        self.k_of_slide = int((self.questions_list_y - 100) / (590 - 70))
-
-        self.slider = 0
-        if self.questions_list_y > 700:
-            self.slider = Slider(380, 100, (20, 90, 375, 594), self.slider_sprite, self.all_but_sprites)
-            self.slider_logic = False
-            self.slider_mouse_pos_y = 0
+        # self.k_of_slide = int((self.questions_list_y - 100) / (590 - 70))
+        #
+        # self.slider = 0
+        # if self.questions_list_y > 700:
+        #     self.slider = Slider(380, 100, (20, 90, 375, 594), self.slider_sprite, self.all_but_sprites)
+        #     self.slider_logic = False
+        #     self.slider_mouse_pos_y = 0
 
         # Генерация строк каждого вопроса для корректного отображения на странице
 
@@ -332,14 +332,11 @@ class Test:
                     (440 + 400 * (i % 2), 425 + (100 if i == 2 or i == 3 else 0) + k * string_height))
 
     def change_question(self, x):
-        self.questions_buts[self.question_id].now = False
-        self.questions_buts[self.question_id].charge_switch((0, 0))
+        # self.questions_buts[self.question_id].now = False
+        # self.questions_buts[self.question_id].charge_switch((0, 0))
         self.question_id = x
-        self.questions_buts[self.question_id].now = True
-        self.questions_buts[self.question_id].charge_switch((0, 0))
-
-        self.flagbut.charge_lock = self.questions_buts[self.question_id].flag
-        self.flagbut.charge_switch((0, 0))
+        # self.questions_buts[self.question_id].now = True
+        # self.questions_buts[self.question_id].charge_switch((0, 0))
 
         for i in self.answer_buts:
             i.now = self.nums_of_selected_answers[self.question_id] == i.answer_id
@@ -369,7 +366,6 @@ class Test:
             if i < n - 1:
                 line += "_"
         line += "\n"
-
         with open(filename, 'a', encoding='utf-8') as ResultsFile:
             ResultsFile.write(line)
 
@@ -377,22 +373,14 @@ class Test:
         if self.need_switch_scene_to_result:
             pos = (695, 635)
 
-        if self.flagbut.click(pos):
-            self.questions_buts[self.question_id].flag = not self.questions_buts[self.question_id].flag
-            self.flagbut.charge_lock = not self.flagbut.charge_lock
-            self.flagbut.charge_switch((0, 0))
-            self.questions_buts[self.question_id].charge_switch((0, 0))
-            self.mouse_motion(pos)
-            return "x"
-
         for i in self.answer_but_sprites:
             x = i.click(pos)
             if x:
                 if self.nums_of_selected_answers:
                     self.answer_buts[self.nums_of_selected_answers[self.question_id] - 1].now = False
                 self.nums_of_selected_answers[self.question_id] = i.answer_id
-                self.questions_buts[self.question_id].complete = True
-                self.questions_buts[self.question_id].charge_switch((0, 0))
+                # self.questions_buts[self.question_id].complete = True
+                # self.questions_buts[self.question_id].charge_switch((0, 0))
                 for j in self.answer_but_sprites:
                     j.now = False
                 i.now = True
@@ -429,13 +417,14 @@ class Test:
         self.slider_mouse_pos_y = pos[1]
 
     def slide(self, pos, y, mouse_logic):
-        if self.slider:
-            x = self.slider.slide(pos, y, mouse_logic)
-            if x:
-                for i in self.qtbut_sprites:
-                    i.rect.y -= x * self.k_of_slide
-        for i in self.all_but_sprites:
-            i.charge_switch(pos)
+        pass
+        # if self.slider:
+        #     x = self.slider.slide(pos, y, mouse_logic)
+        #     if x:
+        #         for i in self.qtbut_sprites:
+        #             i.rect.y -= x * self.k_of_slide
+        # for i in self.all_but_sprites:
+        #     i.charge_switch(pos)
 
 
 class Result:
