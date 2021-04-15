@@ -153,7 +153,7 @@ class Test:
 
         self.question_font = pygame.font.Font(os.path.join('data', "Fonts/VollkornSC-Regular.ttf"), 25)
         self.timer_font = pygame.font.Font(os.path.join('data', "Fonts/consolas.ttf"), 40)
-        self.answer_font = pygame.font.Font(os.path.join('data', "Fonts/VollkornSC-Regular.ttf"), 15)
+        self.answer_font = pygame.font.Font(os.path.join('data', "Fonts/VollkornSC-Regular.ttf"), 10)
 
         # Создания названия темы
 
@@ -342,22 +342,22 @@ class Test:
 
         # Отрисовка ответов:
 
-        string_height = self.answer_font.size("К")[1] + 2
+        string_height = self.answer_font.size("К")[1] + 5
         for i in range(4):
             if self.answer_buts[i].charge_log:
                 for j in range(-2, 6):
                     for k in range(len(self.answers[self.question_id][i])):
                         screen.blit(self.question_font.render(
                             self.answers[self.question_id][i][k], True, (128, 128, 128)),
-                            (290 + 373 * (i % 2) + j, 435 + (100 if i == 2 or i == 3 else 0) + j + k * string_height))
+                            (45 + 610 * (i % 2) + j, 430 + (100 if i == 2 or i == 3 else 0) + j + k * string_height))
 
             for k in range(len(self.answers[self.question_id][i])):
                 screen.blit(self.question_font.render(
                     self.answers[self.question_id][i][k], True, (0, 0, 0)),
-                    (290 + 373 * (i % 2) + 1, 435 + (100 if i == 2 or i == 3 else 0) + k * string_height + 1))
+                    (45 + 610 * (i % 2) + 1, 430 + (100 if i == 2 or i == 3 else 0) + k * string_height + 1))
                 screen.blit(self.question_font.render(
                     self.answers[self.question_id][i][k], True, (253, 253, 253)),
-                    (290 + 373 * (i % 2), 435 + (100 if i == 2 or i == 3 else 0) + k * string_height))
+                    (45 + 610 * (i % 2), 430 + (100 if i == 2 or i == 3 else 0) + k * string_height))
 
     def change_question(self, x):
         # self.questions_buts[self.question_id].now = False
