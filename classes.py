@@ -260,10 +260,12 @@ class QuestionImage(pygame.sprite.Sprite):
         leng = 0
         string = ""
         for i in text.split():
-            if leng + len(i) > width:
+            if leng + len(i) > width or i == '*':
                 self.strings.append(string)
                 string = ""
                 leng = 0
+                if i == '*':
+                    continue
             string += i + " "
             leng += len(i) + 1
         if string:
@@ -277,9 +279,14 @@ class QuestionImage(pygame.sprite.Sprite):
         else:
             self.image.fill(pygame.Color(180, 0, 0))
 
+        indexplus = 0
         for i in range(len(self.strings)):
+            if self.strings[i][:3] == 'А. ':
+                indexplus = 10
+            if self.strings[i][:3] == 'Б. ':
+                indexplus = 20
             self.image.blit(self.font.render(self.strings[i], True, (30, 30, 30)),
-                            (18, i * (self.font.size(self.strings[i])[1]) + 5))
+                            (18, i * (self.font.size(self.strings[i])[1] - 3) + indexplus + 5))
 
         self.rect = self.image.get_rect()
         self.w, self.h = self.image.get_rect()[2], self.image.get_rect()[3]

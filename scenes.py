@@ -223,10 +223,10 @@ class Test:
         # Создание кнопок ответов
 
         self.answer_buts = [
-            Button("x", "answerbut", 280, 430, self.answer_but_sprites, self.all_but_sprites, answer_id=1),
-            Button("x", "answerbut", 650, 430, self.answer_but_sprites, self.all_but_sprites, answer_id=2),
-            Button("x", "answerbut", 280, 530, self.answer_but_sprites, self.all_but_sprites, answer_id=3),
-            Button("x", "answerbut", 650, 530, self.answer_but_sprites, self.all_but_sprites, answer_id=4)
+            Button("x", "answerbut", 35, 430, self.answer_but_sprites, self.all_but_sprites, answer_id=1),
+            Button("x", "answerbut", 645, 430, self.answer_but_sprites, self.all_but_sprites, answer_id=2),
+            Button("x", "answerbut", 35, 530, self.answer_but_sprites, self.all_but_sprites, answer_id=3),
+            Button("x", "answerbut", 645, 530, self.answer_but_sprites, self.all_but_sprites, answer_id=4)
         ]
 
         # self.questions_buts[0].now = True
@@ -252,11 +252,13 @@ class Test:
             string = ""
             leng = 0
             for i in self.questions[k].split():
-                if leng + len(i) > width:
+                if leng + len(i) > width or i == '*':
                     self.strings.append([])
                     self.strings[k].append(string)
                     string = ""
                     leng = 0
+                    if i == '*':
+                        continue
                 string += i + " "
                 leng += len(i) + 1
             self.strings.append([])
@@ -301,19 +303,21 @@ class Test:
         screen.blit(self.font.render("Вопрос:", True, (0, 0, 0)), (1071, 16))
         screen.blit(self.font.render("Вопрос:", True, (253, 253, 253)), (1070, 15))
         text = str(self.question_id + 1) + "/" + str(len(self.questions))
-        screen.blit(self.font.render(text, True, (0, 0, 0)), (1131, 51))
-        screen.blit(self.font.render(text, True, (253, 253, 253)), (1130, 50))
+        screen.blit(self.font.render(text, True, (0, 0, 0)), (1116, 51))
+        screen.blit(self.font.render(text, True, (253, 253, 253)), (1115, 50))
 
         # Отрисовка вопроса
 
         strings_y = 100
         for i in self.strings[self.question_id]:
+            if "А. " in i or "Б. " in i:
+                strings_y += 20
             screen.blit(self.question_font.render(i, True, (0, 0, 0)), (291, strings_y + 1))
             screen.blit(self.question_font.render(i, True, (0, 0, 0)), (291, strings_y - 1))
             screen.blit(self.question_font.render(i, True, (0, 0, 0)), (289, strings_y + 1))
             screen.blit(self.question_font.render(i, True, (0, 0, 0)), (289, strings_y - 1))
             screen.blit(self.question_font.render(i, True, (253, 253, 253)), (290, strings_y))
-            strings_y += self.question_font.size(i)[1]
+            strings_y += self.question_font.size(i)[1] - 10
 
         # отрисовка времени
 
