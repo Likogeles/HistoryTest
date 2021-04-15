@@ -134,9 +134,9 @@ class Test:
         self.questions_list_y = 100
 
         Button("tests", "backbut", 20, 10, self.but_sprites, self.all_but_sprites)
-        self.prev_but = Button("prev", "prevquestion", 115, 629, self.prev_but_sprite, self.all_but_sprites)
+        self.prev_but = Button("prev", "prevquestion", 70, 629, self.prev_but_sprite, self.all_but_sprites)
         Button("result" + str(self.test_id), "finish", 468, 629, self.but_sprites, self.all_but_sprites)
-        self.next_but = Button("next", "nextquestion", 821, 629, self.next_but_sprite, self.all_but_sprites)
+        self.next_but = Button("next", "nextquestion", 866, 629, self.next_but_sprite, self.all_but_sprites)
 
         # self.flagbut = Button("flag", "flag", 1145, 305, self.but_sprites)
 
@@ -180,7 +180,7 @@ class Test:
             if k == 0:
                 self.questions.append(str(len(self.questions) + 1) + ") " + file_lines[i])
             elif k == 1 or k == 2 or k == 3 or k == 4:
-                tmp_answers.append([file_lines[i][3:]])
+                tmp_answers.append([file_lines[i][2:]])
             elif k == 5:
                 self.answers.append(tmp_answers)
                 tmp_answers = []
@@ -298,11 +298,11 @@ class Test:
         screen.blit(self.font.render(self.topic, True, (253, 253, 253)), (self.topic_x, 20))
 
         # отрисовка номера вопроса
-        screen.blit(self.font.render("Вопрос:", True, (0, 0, 0)), (1041, 16))
-        screen.blit(self.font.render("Вопрос:", True, (253, 253, 253)), (1040, 15))
+        screen.blit(self.font.render("Вопрос:", True, (0, 0, 0)), (1071, 16))
+        screen.blit(self.font.render("Вопрос:", True, (253, 253, 253)), (1070, 15))
         text = str(self.question_id + 1) + "/" + str(len(self.questions))
-        screen.blit(self.font.render(text, True, (0, 0, 0)), (1161, 51))
-        screen.blit(self.font.render(text, True, (253, 253, 253)), (1160, 50))
+        screen.blit(self.font.render(text, True, (0, 0, 0)), (1131, 51))
+        screen.blit(self.font.render(text, True, (253, 253, 253)), (1130, 50))
 
         # Отрисовка вопроса
 
@@ -463,8 +463,8 @@ class Result:
         BackgroundImage("background", 0, 0, self.backbackground_sprites)
         BackgroundImage("empty0", 0, 0, self.background_sprites)
         BackgroundImage("empty1", 0, 705, self.background_sprites)
-        BackgroundImage("topic", 405, 10, self.background_sprites)
-        BackgroundImage("nums", 130, 10, self.background_sprites)
+        BackgroundImage("topic", 464, 10, self.background_sprites)
+        BackgroundImage("nums", 260, 10, self.background_sprites)
 
         self.font = pygame.font.Font(os.path.join('data', "Fonts/VollkornSC-Regular.ttf"), 35)
 
@@ -473,7 +473,7 @@ class Result:
             tests_topics = [line.strip() for line in TestsTopicsFile]
 
         self.topic = tests_topics[int(test_id)].split('*')[0]
-        self.topic_x = 405 + 590 / 2 - self.font.size(self.topic)[0] / 2
+        self.topic_x = 464 + 740 / 2 - self.font.size(self.topic)[0] / 2
 
         Button("tests", "backbut", 20, 10, self.but_sprites)
 
@@ -491,7 +491,7 @@ class Result:
             if k == 0:
                 self.questions.append(str(len(self.questions) + 1) + ") " + file_lines[i])
             elif k == 1 or k == 2 or k == 3 or k == 4:
-                tmp_answers.append([file_lines[i][3:]])
+                tmp_answers.append([file_lines[i][2:]])
             elif k == 5:
                 self.answers.append(tmp_answers)
                 tmp_answers = []
@@ -552,8 +552,8 @@ class Result:
         pygame.draw.rect(screen, (70, 54, 37), (20, 100, 1250, 605), 3)
 
         # отрисовка темы
-        screen.blit(self.font.render(self.topic, True, (0, 0, 0)), (self.topic_x + 1, 28))
-        screen.blit(self.font.render(self.topic, True, (253, 253, 253)), (self.topic_x, 27))
+        screen.blit(self.font.render(self.topic, True, (0, 0, 0)), (self.topic_x + 1, 21))
+        screen.blit(self.font.render(self.topic, True, (253, 253, 253)), (self.topic_x, 20))
 
         # отрисовка результатов
 
@@ -566,16 +566,16 @@ class Result:
             color = (255, 255, 0)
         else:
             color = (0, 255, 0)
-        w = 145
-        screen.blit(self.font.render(nums[0], True, (0, 0, 0)), (w + 1, 11))
-        screen.blit(self.font.render(nums[0], True, color), (w, 10))
-        screen.blit(self.font.render(nums[1] + "%", True, (0, 0, 0)), (w + 1, 43))
-        screen.blit(self.font.render(nums[1] + "%", True, color), (w, 42))
-        w = w + 125 - self.font.size(nums[2])[0]
+        w = 270
+        screen.blit(self.font.render(nums[0], True, (0, 0, 0)), (w + 1, 3))
+        screen.blit(self.font.render(nums[0], True, color), (w, 2))
+        screen.blit(self.font.render(nums[1] + "%", True, (0, 0, 0)), (w + 1, 36))
+        screen.blit(self.font.render(nums[1] + "%", True, color), (w, 35))
+        w = w + 70 - self.font.size(nums[2])[0]
         color = (0, 0, 0)
-        screen.blit(self.font.render(nums[2], True, color), (w + 101, 26))
+        screen.blit(self.font.render(nums[2], True, color), (w + 101, 21))
         color = (253, 253, 253)
-        screen.blit(self.font.render(nums[2], True, color), (w + 100, 25))
+        screen.blit(self.font.render(nums[2], True, color), (w + 100, 20))
 
     def click(self, pos):
         for i in self.but_sprites:

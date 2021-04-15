@@ -38,7 +38,7 @@ class Button(pygame.sprite.Sprite):
         # Работа с текстом
         self.font = pygame.font.Font(os.path.join('data', "Fonts/VollkornSC-Regular.ttf"), 30)
         self.text = text
-        self.text_cords = (20, 20)
+        self.text_cords = (10, 15)
         if self.text != 'x':
             self.image.blit(self.font.render(self.text, True, (0, 0, 0)), (self.text_cords[0] + 1, self.text_cords[1] + 1))
             self.image.blit(self.font.render(self.text, True, (253, 253, 253)), self.text_cords)
