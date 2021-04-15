@@ -134,24 +134,36 @@ class Test:
         self.questions_list_y = 100
 
         Button("tests", "backbut", 20, 10, self.but_sprites, self.all_but_sprites)
-        self.prev_but = Button("prev", "prevquestion", 410, 629, self.prev_but_sprite, self.all_but_sprites)
-        Button("result" + str(self.test_id), "finish", 690, 629, self.but_sprites, self.all_but_sprites)
-        self.next_but = Button("next", "nextquestion", 970, 629, self.next_but_sprite, self.all_but_sprites)
+        self.prev_but = Button("prev", "prevquestion", 115, 629, self.prev_but_sprite, self.all_but_sprites)
+        Button("result" + str(self.test_id), "finish", 468, 629, self.but_sprites, self.all_but_sprites)
+        self.next_but = Button("next", "nextquestion", 821, 629, self.next_but_sprite, self.all_but_sprites)
 
         # self.flagbut = Button("flag", "flag", 1145, 305, self.but_sprites)
 
         BackgroundImage("background", 0, 0, self.background_sprites)
 
-        BackgroundImage("question", 410, 13, self.background_sprites)
+        BackgroundImage("topic", 270, 10, self.background_sprites)
+        BackgroundImage("question", 270, 92, self.background_sprites)
+        BackgroundImage("questionnum", 1030, 10, self.background_sprites)
 
         # BackgroundImage("slider", 20, 90, self.background_sprites)
-        BackgroundImage("dummy0", 0, 0, self.dummy_sprites)
-        BackgroundImage("dummy1", 0, 686, self.dummy_sprites)
-        BackgroundImage("timer", 117, 10, self.dummy_sprites)
+        # BackgroundImage("dummy0", 0, 0, self.dummy_sprites)
+        # BackgroundImage("dummy1", 0, 686, self.dummy_sprites)
+        BackgroundImage("timer", 20, 90, self.dummy_sprites)
 
         self.question_font = pygame.font.Font(os.path.join('data', "Fonts/VollkornSC-Regular.ttf"), 25)
         self.timer_font = pygame.font.Font(os.path.join('data', "Fonts/consolas.ttf"), 40)
         self.answer_font = pygame.font.Font(os.path.join('data', "Fonts/VollkornSC-Regular.ttf"), 15)
+
+        # Создания названия темы
+
+        self.font = pygame.font.Font(os.path.join('data', "Fonts/VollkornSC-Regular.ttf"), 35)
+        filename = "data/TestTopics/TestsTopics.txt"
+        with open(filename, 'r', encoding='utf-8') as TestsTopicsFile:
+            tests_topics = [line.strip() for line in TestsTopicsFile]
+
+        self.topic = tests_topics[int(test_id)].split('*')[0]
+        self.topic_x = 270 + 740 / 2 - self.font.size(self.topic)[0] / 2
 
         # Работа с файлом вопросов
 
@@ -203,17 +215,18 @@ class Test:
 
         # self.questions_buts = []
         # for i in range(len(self.questions)):
-        #     k = QtButton(i, 30, self.questions_list_y, 345, self.questions[i], self.qtbut_sprites, self.all_but_sprites)
+        #     k = QtButton(i, 30, self.questions_list_y, 345, self.questions[i],
+        #     self.qtbut_sprites, self.all_but_sprites)
         #     self.questions_buts.append(k)
         #     self.questions_list_y += k.height() + 5
 
         # Создание кнопок ответов
 
         self.answer_buts = [
-            Button("x", "answerbut", 430, 420, self.answer_but_sprites, self.all_but_sprites, answer_id=1),
-            Button("x", "answerbut", 830, 420, self.answer_but_sprites, self.all_but_sprites, answer_id=2),
-            Button("x", "answerbut", 430, 520, self.answer_but_sprites, self.all_but_sprites, answer_id=3),
-            Button("x", "answerbut", 830, 520, self.answer_but_sprites, self.all_but_sprites, answer_id=4)
+            Button("x", "answerbut", 280, 430, self.answer_but_sprites, self.all_but_sprites, answer_id=1),
+            Button("x", "answerbut", 650, 430, self.answer_but_sprites, self.all_but_sprites, answer_id=2),
+            Button("x", "answerbut", 280, 530, self.answer_but_sprites, self.all_but_sprites, answer_id=3),
+            Button("x", "answerbut", 650, 530, self.answer_but_sprites, self.all_but_sprites, answer_id=4)
         ]
 
         # self.questions_buts[0].now = True
@@ -233,7 +246,7 @@ class Test:
 
         self.strings = []
 
-        width = 1100 / (self.question_font.size("Wa")[0] / 2)  # Кол-во символов, выделенных на ширину вопроса
+        width = 1000 / (self.question_font.size("Wa")[0] / 2)  # Кол-во символов, выделенных на ширину вопроса
 
         for k in range(len(self.questions)):
             string = ""
@@ -265,7 +278,7 @@ class Test:
 
         # Отрисовка списка вопросов
         self.qtbut_sprites.draw(screen)
-        pygame.draw.rect(screen, (70, 54, 37), (20, 91, 375, 594), 3)
+        # pygame.draw.rect(screen, (70, 54, 37), (20, 91, 375, 594), 3)
 
         # Отрисовка заглушек для списка вопросов
         self.dummy_sprites.draw(screen)
@@ -280,15 +293,26 @@ class Test:
         self.but_sprites.draw(screen)
         self.slider_sprite.draw(screen)
 
+        # отрисовка темы
+        screen.blit(self.font.render(self.topic, True, (0, 0, 0)), (self.topic_x + 1, 21))
+        screen.blit(self.font.render(self.topic, True, (253, 253, 253)), (self.topic_x, 20))
+
+        # отрисовка номера вопроса
+        screen.blit(self.font.render("Вопрос:", True, (0, 0, 0)), (1041, 16))
+        screen.blit(self.font.render("Вопрос:", True, (253, 253, 253)), (1040, 15))
+        text = str(self.question_id + 1) + "/" + str(len(self.questions))
+        screen.blit(self.font.render(text, True, (0, 0, 0)), (1161, 51))
+        screen.blit(self.font.render(text, True, (253, 253, 253)), (1160, 50))
+
         # Отрисовка вопроса
 
-        strings_y = 30
+        strings_y = 100
         for i in self.strings[self.question_id]:
-            screen.blit(self.question_font.render(i, True, (253, 253, 253)), (431, strings_y + 1))
-            screen.blit(self.question_font.render(i, True, (253, 253, 253)), (431, strings_y - 1))
-            screen.blit(self.question_font.render(i, True, (253, 253, 253)), (429, strings_y + 1))
-            screen.blit(self.question_font.render(i, True, (253, 253, 253)), (429, strings_y - 1))
-            screen.blit(self.question_font.render(i, True, (0, 0, 0)), (430, strings_y))
+            screen.blit(self.question_font.render(i, True, (0, 0, 0)), (291, strings_y + 1))
+            screen.blit(self.question_font.render(i, True, (0, 0, 0)), (291, strings_y - 1))
+            screen.blit(self.question_font.render(i, True, (0, 0, 0)), (289, strings_y + 1))
+            screen.blit(self.question_font.render(i, True, (0, 0, 0)), (289, strings_y - 1))
+            screen.blit(self.question_font.render(i, True, (253, 253, 253)), (290, strings_y))
             strings_y += self.question_font.size(i)[1]
 
         # отрисовка времени
@@ -304,13 +328,13 @@ class Test:
             seconds = "0" + seconds
 
         text = str(minutes) + ":" + seconds
-        timer_x = 117 + 130 - self.timer_font.size(text)[0] / 2
+        timer_x = 20 + 115 - self.timer_font.size(text)[0] / 2
 
-        screen.blit(self.timer_font.render(text, True, (0, 0, 0)), (timer_x + 1, 40 + 1))
+        screen.blit(self.timer_font.render(text, True, (0, 0, 0)), (timer_x + 1, 125 + 1))
         if minutes < 5:
-            screen.blit(self.timer_font.render(text, True, (250, 0, 0)), (timer_x, 40))
+            screen.blit(self.timer_font.render(text, True, (250, 0, 0)), (timer_x, 125))
         else:
-            screen.blit(self.timer_font.render(text, True, (253, 253, 253)), (timer_x, 40))
+            screen.blit(self.timer_font.render(text, True, (253, 253, 253)), (timer_x, 125))
 
         # Отрисовка ответов:
 
@@ -321,15 +345,15 @@ class Test:
                     for k in range(len(self.answers[self.question_id][i])):
                         screen.blit(self.question_font.render(
                             self.answers[self.question_id][i][k], True, (128, 128, 128)),
-                            (440 + 400 * (i % 2) + j, 425 + (100 if i == 2 or i == 3 else 0) + j + k * string_height))
+                            (290 + 373 * (i % 2) + j, 435 + (100 if i == 2 or i == 3 else 0) + j + k * string_height))
 
             for k in range(len(self.answers[self.question_id][i])):
                 screen.blit(self.question_font.render(
                     self.answers[self.question_id][i][k], True, (0, 0, 0)),
-                    (440 + 400 * (i % 2) + 1, 425 + (100 if i == 2 or i == 3 else 0) + k * string_height + 1))
+                    (290 + 373 * (i % 2) + 1, 435 + (100 if i == 2 or i == 3 else 0) + k * string_height + 1))
                 screen.blit(self.question_font.render(
                     self.answers[self.question_id][i][k], True, (253, 253, 253)),
-                    (440 + 400 * (i % 2), 425 + (100 if i == 2 or i == 3 else 0) + k * string_height))
+                    (290 + 373 * (i % 2), 435 + (100 if i == 2 or i == 3 else 0) + k * string_height))
 
     def change_question(self, x):
         # self.questions_buts[self.question_id].now = False
@@ -410,11 +434,11 @@ class Test:
         self.slider_logic = False
 
     def mouse_motion(self, pos):
-        if self.slider_logic:
-            self.slide(pos, -(pos[1] - self.slider_mouse_pos_y) * 0.125, True)
+        # if self.slider_logic:
+        #     self.slide(pos, -(pos[1] - self.slider_mouse_pos_y) * 0.125, True)
         for i in self.all_but_sprites:
             i.charge_switch(pos)
-        self.slider_mouse_pos_y = pos[1]
+        # self.slider_mouse_pos_y = pos[1]
 
     def slide(self, pos, y, mouse_logic):
         pass
