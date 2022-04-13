@@ -13,7 +13,7 @@ from functions import terminate
 
 pygame.init()
 
-pygame.display.set_caption("Тесты по экономике")
+pygame.display.set_caption("Тесты по философии")
 pygame.display.set_icon(pygame.image.load("data/Sprites/icon.png"))
 screen = pygame.display.set_mode((1280, 720))
 
